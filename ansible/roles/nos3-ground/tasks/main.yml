@@ -1,0 +1,84 @@
+---
+- name: Display ground variable
+  debug:
+    var: GROUND
+
+# cosmos
+- name: COSMOS
+  when: (GROUND == "COSMOS") or (GROUND == "BOTH")
+  block:
+  - name: Install COSMOS on Ubuntu
+    become: yes
+    when: ansible_facts['os_family'] == "Debian"
+    block:
+    - name: Install ruby-termios gem
+      gem:
+        name: ruby-termios
+        user_install: no
+        include_doc: no
+    - name: Install rake gem on Ubuntu
+      shell:
+        cmd: gem install rake --no-ri --no-rdoc
+    - name: Install cosmos gem
+      become: yes
+      shell:
+        cmd: gem install cosmos --no-ri --no-rdoc
+  - name: Install COSMOS on CentOS # Ugg... this is soooo... ugly!
+    become: yes
+    when: ansible_facts['os_family'] == "RedHat"
+    block:
+    - name: Install GPG key for rvm
+      shell:
+        cmd: gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+    - name: Retrieve rvm
+      get_url:
+        url: https://get.rvm.io
+        dest: /root/rvm-install.sh
+    - name: Install rvm
+      shell:
+        cmd: bash /root/rvm-install.sh stable
+    - name: Install ruby 2.4.2
+      shell:
+        cmd: bash -c 'source /etc/profile.d/rvm.sh; rvm install 2.4.2'
+    - name: Make ruby 2.4.2 default
+      shell:
+        cmd: bash -c 'source /etc/profile.d/rvm.sh; rvm use 2.4.2 --default'
+    - name: Install cosmos gem
+      become: yes
+      shell:
+        cmd: bash -c 'source /etc/profile.d/rvm.sh; gem install cosmos --no-ri --no-rdoc'
+
+# AIT
+- name: AIT
+  when: (GROUND == "AIT") or (GROUND == "BOTH")
+  block:
+  - name: Create AIT directory
+    become: yes
+    become_user: nos3
+    file:
+      path: /home/nos3/AIT
+      state: directory
+  - name: Clone AIT core repo
+    become: yes
+    become_user: nos3
+    become_method: sudo
+    git:
+      dest: '/home/nos3/AIT/AIT-Core'
+      repo: 'https://github.com/NASA-AMMOS/AIT-Core.git'
+      version: master
+  - name: Clone AIT GUI repo
+    become: yes
+    become_user: nos3
+    become_method: sudo
+    git:
+      dest: '/home/nos3/AIT/AIT-GUI'
+      repo: 'https://github.com/NASA-AMMOS/AIT-GUI.git'
+      version: master
+  - name: Clone AIT CFS repo
+    become: yes
+    become_user: nos3
+    become_method: sudo
+    git:
+      dest: '/home/nos3/AIT/AIT-CFS'
+      repo: 'https://github.com/NASA-AMMOS/AIT-CFS.git'
+      version: master

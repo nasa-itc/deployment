@@ -1,0 +1,217 @@
+---
+##### O/S packages, environment, NOS3 branding, etc. #####
+
+- name: Include OS specific variables
+  include_vars:
+    file: "{{ ansible_facts['os_family'] }}.yml"
+    name: osvars
+  tags: base
+
+#- name: Display osvars
+#  debug:
+#    var: osvars.packages_to_install
+
+##### O/S packages #####
+- name: Update apt package cache
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  apt: update_cache=yes
+  changed_when: false # never report changed
+  tags: base
+
+- name: Add epel-release repository for yum
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  yum:
+    name: "epel-release"
+    state: present
+  tags: base
+
+- name: Add Microsoft yum repo for VS code
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  yum_repository:
+    name: Microsoft
+    description: Microsoft yum repo
+    baseurl: https://packages.microsoft.com/yumrepos/vscode
+    gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+  tags: base
+  
+- name: Update yum package cache
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  yum: update_cache=yes
+  changed_when: false # never report changed
+  tags: base
+
+- name: Install NOS3 required packages
+  become: yes
+  package:
+    state: present
+    name: "{{ osvars.packages_to_install }}"
+  tags: base
+
+- name: Install VS code on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  snap:
+    name: code
+    classic: yes
+
+##### Install ITC common and NOS engine #####
+- name: Install ITC common on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  apt:
+    deb="/vagrant/nos3_filestore/packages/ubuntu/itc-common-cxx11-Release_1.9.1_i386.deb"
+  tags: base
+- name: Install NOS engine on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  apt:
+    deb="/vagrant/nos3_filestore/packages/ubuntu/nos-engine-cxx11-Release_1.5.1_i386.deb"
+  tags: base
+- name: Install ITC common and NOS engine on CentOS
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  yum:
+    name:
+      - "/vagrant/nos3_filestore/packages/centos/itc-common-cxx11-Release_1.9.1_i386.rpm"
+      - "/vagrant/nos3_filestore/packages/centos/nos-engine-cxx11-Release_1.4.0_i386.rpm"
+    state: present
+  tags: base
+
+##### Perform NOS3 branding #####
+- name: Install/use NOS3 background on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  blockinfile:
+    path: /etc/profile.d/all_users.sh
+    create: yes
+    marker: "# {mark} Ansible managed NOS3 background block"
+    block: |
+      gsettings set org.mate.background picture-filename "/usr/share/backgrounds/nos3_background.png"
+  tags: base
+- name: Copy NOS3 background
+  become: yes
+  copy:
+    src: /vagrant/nos3_filestore/backgrounds/nos3_background.png
+    dest: /usr/share/backgrounds/
+  tags: base
+- name: Install NOS3 background on CentOS
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  blockinfile:
+    path: /etc/dconf/db/local.d/02-gnome-desktop-background
+    create: yes
+    marker: "# {mark} Ansible managed NOS3 backgrounds block"
+    block: |
+      # dconf path
+      [org/gnome/desktop/background]
+      # dconf key names / values
+      picture-uri='file:///usr/share/backgrounds/nos3_background.png'
+  tags: base
+- name: Use NOS3 background on CentOS
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  command:  dconf update
+  tags: base
+
+- name: Install NOS3 icons
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: /usr/share/icons/
+  with_fileglob:
+    - "/vagrant/nos3_filestore/icons/*"
+  tags: base
+# TODO - No launcher bar (like in unity) on the left in mate:
+#- name: Install/use NOS3 shortcuts on Ubuntu
+#  become: yes
+#  when: ansible_facts['os_family'] == "Debian"
+#  blockinfile:
+#    path: /etc/profile.d/all_users.sh
+#    create: yes
+#    marker: "# {mark} Ansible managed favorites block"
+#    block: |
+#      gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'firefox.desktop', 'org.gnome.gedit.desktop', 'nos3.desktop', 'baseline.desktop', 'org.gnome.Terminal.desktop']"
+- name: Install/use NOS3 shortcuts on CentOS
+  when: ansible_facts['os_family'] == "RedHat"
+  debug:
+    msg: TODO - Install/use NOS3 shortcuts on CentOS
+  tags: base
+
+##### Configure environment, crash reporting, and core dumps #####
+- name: Launch executable scripts
+  become: yes
+  blockinfile:
+    path: /etc/profile.d/all_users.sh
+    create: yes
+    marker: "# {mark} Ansible managed launch executables block"
+    block: |
+      gsettings set org.mate.caja.preferences executable-text-activation launch
+  tags: base
+- name: Up the message queue maximum
+  become: yes
+  lineinfile:
+    path: /etc/sysctl.conf
+    create: yes
+    regexp: fs.mqueue.msg_max
+    line: 'fs.mqueue.msg_max=500'
+  tags: base
+- name: Up the max user watches for VS code
+  become: yes
+  lineinfile:
+    path: /etc/sysctl.conf
+    create: yes
+    regexp: fs.inotify.max_user_watches
+    line: 'fs.inotify.max_user_watches=524288'
+  tags: base
+- name: Update system config now
+  become: yes
+  command:  sysctl -p
+  tags: base
+- name: Remove apport on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  package:
+    state: absent
+    name: apport
+  tags: base
+- name: Set core dump pattern on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  lineinfile:
+    path: /etc/sysctl.conf
+    create: yes
+    regexp: core_pattern
+    line: 'kernel.core_pattern=core.%e.%p.%t'
+  tags: base
+- name: Set soft core dump limits on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  lineinfile:
+    path: /etc/security/limits.conf
+    create: yes
+    regexp: 'soft.*core'
+    line: '*                soft    core            unlimited'
+  tags: base
+- name: Set hard core dump limits on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  lineinfile:
+    path: /etc/security/limits.conf
+    create: yes
+    regexp: 'hard.*core'
+    line: '*                hard    core            unlimited'
+  tags: base
+- name: Set ptrace abilities on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  lineinfile:
+    path: /etc/sysctl.d/10-ptrace.conf
+    create: yes
+    regexp: 'kernel.yama.ptrace_scope'
+    line: 'kernel.yama.ptrace_scope = 0'
+  tags: base
+# No special crash reporting/debugging config on CentOS (yet)

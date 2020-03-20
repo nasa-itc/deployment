@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Icon=/home/nos3/icons/nos3.png
+Icon[en_US]=/home/nos3/icons/nos3.png
+Name[en_US]=nos3-stop
+Exec=/home/nos3/bin/nos3-stop.sh
+Name=nos3-stop

@@ -1,0 +1,5 @@
+# Playbook to create just the base VM with the software environment and user that are the basic building blocks for all other playbooks
+- hosts: base
+  roles:
+    - role: nos3-software-env
+    - role: nos3-user

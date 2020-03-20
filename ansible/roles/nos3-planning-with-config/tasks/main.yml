@@ -1,0 +1,8 @@
+---
+- name: Install OIPP # copy from git repo checkout location?
+  debug:
+    msg: TODO - Install OIPP
+- name: Configure OIPP for the mission # copy from git repo checkout location?
+  debug:
+    msg: TODO - Configure OIPP for the mission
+  tags: config

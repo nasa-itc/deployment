@@ -1,0 +1,97 @@
+---
+# nos3-user role
+# user account, env vars, etc.
+
+# Create nos3 user and group
+- name: Create nos3 group
+  become: yes
+  group:
+    name: nos3
+  tags: base
+- name:  Create nos3 user and add nos3 groups
+  become: yes
+  user:
+    name: nos3
+    password: $6$.mG1a/zL$f1LcckhnvYRUxQZrGeWVBh.nNAJu9qNIX9v1zvivsc67SjqGapbXNFS4e2/uInkqSas64WwmBRJ45uqSB.nSZ1
+    group: nos3
+    groups: vboxsf,dialout
+    shell: /bin/bash
+  tags: base
+
+# Configure nos3 permissions, env, etc.
+- name: Add nos3 user as a sudoer
+  become: yes
+  lineinfile:
+    path: /etc/sudoers.d/nos3
+    create: yes
+    line: 'nos3 ALL=(ALL) NOPASSWD:ALL'
+  tags: base
+- name: Copy ssh keys to nos3
+  become: yes
+  block:
+  - name: Touch .ssh
+    file:
+      path: /home/nos3/.ssh
+      state: directory
+      mode: '0700'
+      owner: nos3
+      group: nos3
+  - name: Create .ssh agent env file if it does not exist
+    copy:
+      content: ''
+      dest: /home/nos3/.ssh/agent.env
+      force: no
+      mode: '0600'
+      owner: nos3
+      group: nos3
+- name:  Auto load ssh key
+  become: yes
+  blockinfile:
+    path: /home/nos3/.bashrc
+    create: yes
+    owner: nos3
+    group: nos3
+    marker: "# {mark} Ansible managed auto load ssh key block"
+    block: |
+        # Automatically load ssh key when a terminal is opened
+        env=~/.ssh/agent.env
+        agent_load_env () { test -f "$env" && . "$env" >| /dev/null ; }
+        agent_start () {
+            (umask 077; ssh-agent >| "$env")
+            . "$env" >| /dev/null ; }
+        agent_load_env
+        # agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2= agent not running
+        agent_run_state=$(ssh-add -l >| /dev/null 2>&1; echo $?)
+        if [ ! "$SSH_AUTH_SOCK" ] || [ $agent_run_state = 2 ]; then
+            agent_start
+            ssh-add
+        elif [ "$SSH_AUTH_SOCK" ] && [ $agent_run_state = 1 ]; then
+            ssh-add
+        fi
+        unset env
+  tags: base
+- name: Configure gdb
+  become: yes
+  lineinfile:
+    path: /home/nos3/.gdbinit
+    create: yes
+    owner: nos3
+    group: nos3
+    line: 'handle all ignore nostop noprint'
+  tags: base
+- name:  Set up nos3 user environment # min:106, custom:25
+  debug:
+    msg: TODO - Set up nos3 user environment (Desktop, convenience scripts)
+  tags: base
+
+# Hide the vagrant user
+- name:  Hide vagrant user
+  become: yes
+  blockinfile:
+    path: /var/lib/AccountsService/users/vagrant
+    create: yes
+    marker: "# {mark} Ansible managed launch hide vagrant user block"
+    block: |
+      [User]
+      SystemAccount=true
+  tags: base

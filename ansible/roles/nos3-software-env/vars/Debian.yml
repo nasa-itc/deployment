@@ -1,0 +1,29 @@
+packages_to_install:
+  - git
+  - cmake
+  - cmake-qt-gui
+  - gcc-multilib
+  - g++-multilib
+  - freeglut3-dev:i386
+  - google-mock
+  - googletest
+  - vim
+  - gedit
+  - dos2unix
+  - lrzsz # zmodem, xmodem, ymodem
+  - minicom
+  - libboost-dev:i386
+  - libboost-system-dev:i386
+  - libboost-program-options-dev:i386
+  - libboost-filesystem-dev:i386
+  - libxerces-c-dev:i386
+  - libgtest-dev
+  - dwarves
+  - lib32z1
+  - gnome-terminal
+  - ruby-dev
+  - qt4-default
+  - ruby-bundler
+  - libsocketcan-dev
+  - python-pip
+  - libfltk1.3-dev:i386

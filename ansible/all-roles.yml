@@ -1,0 +1,11 @@
+# Playbook to create a NOS3 development machine
+- hosts: all-roles
+  roles:
+    - role: nos3-software-env
+    - role: nos3-user
+    - role: nos3-42 # 42
+    - role: nos3-42-mission-config # 42 mission specific InOut
+    - role: nos3-ground # COSMOS and/or AIT 
+    - role: nos3-ground-mission-config # COSMOS, AIT mission specific config files
+    - role: nos3-planning-with-config # OIPP with mission specific config
+    - role: nos3-rap-with-config # Retrieval, archival, and playback with mission specific config
