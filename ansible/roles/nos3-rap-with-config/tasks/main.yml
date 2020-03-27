@@ -1,8 +1,0 @@
----
-- name: Install retrieval,archival, and processing software # copy from git repo checkout location?
-  debug:
-    msg: TODO - Install retrieval,archival, and processing software
-- name: Configure retrieval,archival, and processing software for the mission # copy from git repo checkout location?
-  debug:
-    msg: TODO - Configure retrieval,archival, and processing software for the mission
-  tags: config

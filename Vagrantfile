@@ -12,7 +12,6 @@ require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
 OS = cp.get_string_in_list("OS", ["ubuntu", "centos"], "ubuntu")
 GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COSMOS")
-ROLE = cp.get_string_in_list("ROLE", ["base", "dev"], "dev")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     if (OS == "centos")
@@ -49,7 +48,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     }
 
     machine_playbooks.each do |machine, playbook|
-        is_primary = (machine.to_s == ROLE)
+        is_primary = (machine.to_s == "dev")
 
         config.vm.define machine, primary: is_primary, autostart: is_primary do |nos3|
             nos3.vm.provider "virtualbox" do |vbox|

@@ -1,3 +1,2 @@
 OS:                 ubuntu      # "ubuntu" or "centos" (centos currently unsupported)
 GROUND:             COSMOS      # "COSMOS", "AIT", "BOTH", or "NONE"
-ROLE:               dev         # "basic", or "dev"

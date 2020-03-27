@@ -1,6 +1,0 @@
-.vscode
-fsw/build
-sims/build
-*core.*
-*.42
-test.dat

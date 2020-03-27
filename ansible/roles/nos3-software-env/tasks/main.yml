@@ -117,30 +117,6 @@
   command:  dconf update
   tags: base
 
-- name: Install NOS3 icons
-  become: yes
-  copy:
-    src: "{{ item }}"
-    dest: /usr/share/icons/
-  with_fileglob:
-    - "/vagrant/nos3_filestore/icons/*"
-  tags: base
-# TODO - No launcher bar (like in unity) on the left in mate:
-#- name: Install/use NOS3 shortcuts on Ubuntu
-#  become: yes
-#  when: ansible_facts['os_family'] == "Debian"
-#  blockinfile:
-#    path: /etc/profile.d/all_users.sh
-#    create: yes
-#    marker: "# {mark} Ansible managed favorites block"
-#    block: |
-#      gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'firefox.desktop', 'org.gnome.gedit.desktop', 'nos3.desktop', 'baseline.desktop', 'org.gnome.Terminal.desktop']"
-- name: Install/use NOS3 shortcuts on CentOS
-  when: ansible_facts['os_family'] == "RedHat"
-  debug:
-    msg: TODO - Install/use NOS3 shortcuts on CentOS
-  tags: base
-
 ##### Configure environment, crash reporting, and core dumps #####
 - name: Launch executable scripts
   become: yes
