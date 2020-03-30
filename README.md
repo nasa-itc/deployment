@@ -60,22 +60,11 @@ You'll want to be sure you know the following passwords:
 * `nos3` - `nos3123!`
 * `vagrant` - `vagrant`
 
-The `nos3` user has administrator privileges inside the virtual machine so you can install any additional software you see fit.
-
 ## Quality of Life Improvements
 
 It is recommended that you log-in and setup the virtual machine to your tastes.
 The first thing would be to install Virtual Box Guest Additions for your current version by using the `Devices->Insert Guest Additions...` option in the toolbar, auto-launching the CD, and following the instructions.
 Additionally, you will want to remove the current SSH keys at `/home/nos3/.ssh` and replace them with your personal ones so that you may commit to the git repositories. 
-
-## Mission Specific Repositories
-
-In order to build and run mission specific software, you'll have to clone the specific repository or create a new one.
-Scripts and additional instructions are located in those repositories.
-If you need to create a new mission, create a new repository and copy the `./mission_repo/*` folder to it.
-You will need to rename the `sample_defs` after your specific mission.
-From inside the `mission_repo` you can run `mission_setup.sh` which will pull the latest versions of all the submodules you'll need to get started.
-You can remove the `mission_setup.sh` script once it completes successfully and commit the updates to capture the starting point for your specific mission.
 
 ## Re-Provisioning
 
