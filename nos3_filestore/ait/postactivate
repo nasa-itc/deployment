@@ -1,0 +1,9 @@
+if [ $VIRTUAL_ENV == "$HOME/.virtualenvs/ait" ]; then
+    export AIT_ROOT="$HOME/AIT/AIT-Core"
+    export AIT_CONFIG="$HOME/AIT/AIT-Core/config/config.yaml"
+fi
+
+if [ $VIRTUAL_ENV == "$HOME/.virtualenvs/ait-cfs" ]; then
+    export AIT_ROOT="$HOME/AIT/AIT-Core"
+    export AIT_CONFIG="$HOME/AIT/AIT-CFS/config/config.yaml"
+fi
