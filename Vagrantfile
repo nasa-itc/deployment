@@ -36,7 +36,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # Connect network
         vbox.customize ["modifyvm", :id, "--cableconnected1", "on"]
         # Bi-directional clipboard
-        vbox.customize ['modifyvm', :id, '--clipboard', 'bidirectional']
+        vbox.customize ['modifyvm', :id, '--clipboard-mode', 'bidirectional']
     end
 
     # One per machine... but multiple environments are/could be represented here 

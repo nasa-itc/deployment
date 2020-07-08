@@ -50,35 +50,99 @@
 
 # AIT
 - name: AIT
-  when: (GROUND == "AIT") or (GROUND == "BOTH")
+  when: ((GROUND == "AIT") or (GROUND == "BOTH")) and (ansible_facts['os_family'] == "Debian")
+  tags: config
   block:
-  - name: Create AIT directory
-    become: yes
-    become_user: nos3
-    file:
-      path: /home/nos3/AIT
-      state: directory
-  - name: Clone AIT core repo
-    become: yes
-    become_user: nos3
-    become_method: sudo
-    git:
-      dest: '/home/nos3/AIT/AIT-Core'
-      repo: 'https://github.com/NASA-AMMOS/AIT-Core.git'
-      version: master
-  - name: Clone AIT GUI repo
-    become: yes
-    become_user: nos3
-    become_method: sudo
-    git:
-      dest: '/home/nos3/AIT/AIT-GUI'
-      repo: 'https://github.com/NASA-AMMOS/AIT-GUI.git'
-      version: master
-  - name: Clone AIT CFS repo
-    become: yes
-    become_user: nos3
-    become_method: sudo
-    git:
-      dest: '/home/nos3/AIT/AIT-CFS'
-      repo: 'https://github.com/NASA-AMMOS/AIT-CFS.git'
-      version: master
+    - name: AIT - Run apt-get update
+      become: yes
+      apt: update_cache=yes
+  
+    - name: AIT - Install AIT Required Packages
+      become: yes
+      package:
+        state: present
+        name:
+          - git
+          - git-gui
+          - gitk
+          - virtualenv
+          - virtualenvwrapper
+      
+    - name: AIT - Install python setup-tools 
+      become: yes
+      apt: name=python-setuptools
+        
+    - name: AIT - Install virtualenvwrapper via pip
+      pip: name=virtualenvwrapper
+      
+    - name: AIT - Update bashrc for virtualenvwrapper
+      become: yes
+      become_user: nos3
+      blockinfile:
+        path: /home/nos3/.bashrc
+        block: |
+          export WORKON_HOME=/home/nos3/.virtualenvs
+          export PROJECT_HOME=/home/nos3/Devel
+     
+    - name: AIT - Set up ait virtualenv directory
+      become: yes
+      become_user: nos3
+      file:
+        path: /home/nos3/.virtualenvs
+        state: directory
+        owner: nos3
+        group: nos3
+        mode: 0755
+      
+    - name: AIT - Copy virtualenvwrapper postactivate
+      become: yes
+      become_user: nos3
+      copy:
+        src: /vagrant/nos3_filestore/ait/postactivate
+        dest: /home/nos3/.virtualenvs/postactivate
+        owner: nos3
+        group: nos3
+        mode: 0644
+      
+    - name: AIT - Set up virtualenvs
+      become: yes
+      become_user: nos3
+      include: install_ait_repo.yml ait={{item}}
+      loop:
+        - repo: AIT-Core
+          version: 2.0.0
+          venv: ait
+        - repo: AIT-GUI
+          version: 2.1.0
+          venv: ait
+        - repo: AIT-Core
+          version: 2.0.0
+          venv: ait-cfs
+        - repo: AIT-GUI
+          version: 2.1.0
+          venv: ait-cfs
+        - repo: AIT-CFS
+          version: HEAD
+          venv: ait-cfs     
+       
+    # Copy AIT Config files
+    - name: AIT - Copy AIT Config Files
+      become: yes
+      become_user: nos3
+      copy:
+        src: /vagrant/nos3_filestore/ait/config/
+        dest: /home/nos3/AIT/AIT-CFS/config
+        owner: nos3
+        group: nos3
+        mode: 0644
+    
+    # Copy AIT GUI Files
+    - name: AIT - Copy AIT GUI Files
+      become: yes
+      become_user: nos3
+      copy:
+        src: /vagrant/nos3_filestore/ait/gui/
+        dest: /home/nos3/AIT/AIT-CFS/gui
+        owner: nos3
+        group: nos3
+        mode: 0644
