@@ -190,4 +190,22 @@
     regexp: 'kernel.yama.ptrace_scope'
     line: 'kernel.yama.ptrace_scope = 0'
   tags: base
+- name: Set soft real time priority limits on Ubuntu for cFS
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  lineinfile:
+    path: /etc/security/limits.conf
+    create: yes
+    regexp: 'soft.*rtprio'
+    line: '*                soft    rtprio            99'
+  tags: base
+- name: Set hard real time priority limits on Ubuntu for cFS
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  lineinfile:
+    path: /etc/security/limits.conf
+    create: yes
+    regexp: 'hard.*rtprio'
+    line: '*                hard    rtprio            99'
+  tags: base
 # No special crash reporting/debugging config on CentOS (yet)
