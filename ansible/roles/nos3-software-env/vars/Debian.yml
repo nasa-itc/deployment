@@ -16,6 +16,7 @@ packages_to_install:
   - libboost-system-dev:i386
   - libboost-program-options-dev:i386
   - libboost-filesystem-dev:i386
+  - libboost-regex-dev:i386
   - libxerces-c-dev:i386
   - libgtest-dev
   - dwarves
