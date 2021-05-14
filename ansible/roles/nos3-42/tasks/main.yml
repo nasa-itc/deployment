@@ -3,36 +3,31 @@
 - name: Clone 42 repo
   become: yes
   git:
-    dest: '/opt/42'
+    dest: '/opt/nos3/42'
     repo: 'https://github.com/ericstoneking/42.git'
-    version: b70508fde8d3973c1b2fccca96bf1ab7294a6588
+    version: bb9d25d5767ea2df3e4c74736252e70d8c845b77
     update: no
 - name:  Change 42 build
   become: yes
   block:
-  - name:  Build 42 for NOS3
-    replace:
-      path: /opt/42/Makefile
-      regexp: '#NOS3FSW'
-      replace: 'NOS3FSW'
   - name:  Compile 42 as 32 bit
     replace:
-      path: /opt/42/Makefile
+      path: /opt/nos3/42/Makefile
       regexp: 'ARCHFLAG =\s*$'
       replace: 'ARCHFLAG = -m32'
   - name:  Link 42 as 32 bit
     replace:
-      path: /opt/42/Makefile
+      path: /opt/nos3/42/Makefile
       regexp: 'LFLAGS = -L'
       replace: 'LFLAGS = -m32 -L'
 - name: Build 42
   become: yes
   make:
-    chdir: /opt/42
+    chdir: /opt/nos3/42
 - name:  Change 42 directory ownership
   become: yes
   file:
-    path: '/opt/42'
+    path: '/opt/nos3/42'
     state: directory
     recurse: yes
     owner: nos3
