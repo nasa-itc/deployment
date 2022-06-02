@@ -22,7 +22,7 @@
     - name: Install cosmos gem
       become: yes
       shell:
-        cmd: gem install cosmos --no-ri --no-rdoc
+        cmd: gem install -v 4.5.2 cosmos --no-ri --no-rdoc
   - name: Install COSMOS on CentOS # Ugg... this is soooo... ugly!
     become: yes
     when: ansible_facts['os_family'] == "RedHat"

@@ -19,6 +19,14 @@
   tags: base
 
 # Configure nos3 permissions, env, etc.
+- name: Set nos3 as owner of home directory
+  become: yes
+  ansible.builtin.file:
+    path: /home/nos3
+    state: directory
+    recurse: yes
+    owner: nos3
+    group: nos3
 - name: Add nos3 user as a sudoer
   become: yes
   lineinfile:

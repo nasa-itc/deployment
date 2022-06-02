@@ -21,6 +21,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
     config.vm.hostname = "nos3"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
+    config.vm.synced_folder "..", "/home/nos3/Desktop/github-nos3"
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
         vbox.cpus = 2
