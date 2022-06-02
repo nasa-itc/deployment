@@ -25,6 +25,7 @@ packages_to_install:
   - qt-devel
   - libsocketcan-dev
   - python-pip
+  - mesa-dri-drivers.i686
 #  - kernel-devel
 #  - gmock 
 #  - binutils-devel

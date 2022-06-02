@@ -28,3 +28,5 @@ packages_to_install:
   - libsocketcan-dev
   - python-pip
   - libfltk1.3-dev:i386
+  - libgpg-error-dev:i386 # CryptoLib
+  - libgcrypt20-dev:i386 # CryptoLib
