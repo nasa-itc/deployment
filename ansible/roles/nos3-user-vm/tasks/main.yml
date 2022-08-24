@@ -1,0 +1,59 @@
+# Configure nos3 permissions, env, etc.
+- name:  Add nos3 user to various groups
+  become: yes
+  user:
+    name: nos3
+    groups: domainusers, dialout, vboxsf, root
+  tags: base
+  # Note: group root needed to find necessary library files to build
+
+- name: Add nos3 user as a sudoer
+  become: yes
+  lineinfile:
+    path: /etc/sudoers.d/nos3
+    create: yes
+    line: 'nos3 ALL=(ALL) NOPASSWD:ALL'
+  tags: base
+
+# Hide the vagrant user
+- name:  Hide vagrant user
+  become: yes
+  blockinfile:
+    path: /var/lib/AccountsService/users/vagrant
+    create: yes
+    mode: '0666'
+    marker: "# {mark} Ansible managed launch hide vagrant user block"
+    block: |
+      [User]
+      SystemAccount=true
+  tags: base
+
+# RedHat change vagrant password
+- name: Change vagrant password on RedHat
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  shell:
+    cmd: usermod -p vagrant vagrant
+
+# Virtual Box
+- name: Install guest additions required packages for RHEL
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  package:
+    name: 
+      - gcc 
+      - kernel
+      - kernel-devel 
+      - kernel-headers 
+      - kernel-uek-devel
+      - dkms 
+      - make 
+      - bzip2 
+      - perl
+    state: latest
+
+- name: Install guest additions required packages for Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  package:
+    name: "linux-headers-{{ ansible_kernel }}"

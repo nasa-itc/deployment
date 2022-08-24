@@ -1,24 +1,34 @@
 ---
-##### O/S packages, environment, NOS3 branding, etc. #####
+##### GUI #####
+- name: Install Desktop Environment
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  command: yum group install 'Server with GUI' -y
+  args:
+    warn: false
+- name: Default to graphics
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  command: systemctl set-default graphical
 
+##### O/S packages, environment, NOS3 branding, etc. #####
 - name: Include OS specific variables
   include_vars:
     file: "{{ ansible_facts['os_family'] }}.yml"
     name: osvars
   tags: base
 
-#- name: Display osvars
-#  debug:
-#    var: osvars.packages_to_install
-
 ##### O/S packages #####
+- name: Enable i386 architecture
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  command: dpkg --add-architecture i386
 - name: Update apt package cache
   become: yes
   when: ansible_facts['os_family'] == "Debian"
   apt: update_cache=yes
   changed_when: false # never report changed
   tags: base
-
 - name: Add epel-release repository for yum
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
@@ -26,31 +36,188 @@
     name: "epel-release"
     state: present
   tags: base
-
-- name: Add Microsoft yum repo for VS code
+- name: Add powertools repository for yum
   become: yes
+  ignore_errors: yes
   when: ansible_facts['os_family'] == "RedHat"
-  yum_repository:
-    name: Microsoft
-    description: Microsoft yum repo
-    baseurl: https://packages.microsoft.com/yumrepos/vscode
-    gpgkey: https://packages.microsoft.com/keys/microsoft.asc
-  tags: base
-  
+  command: yum config-manager --set-enabled powertools  
+  args:
+    warn: false
+- name: Add ol8_codeready_builder repository for yum
+  become: yes
+  ignore_errors: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  command: yum config-manager --set-enabled ol8_codeready_builder  
+  args:
+    warn: false
 - name: Update yum package cache
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
   yum: update_cache=yes
   changed_when: false # never report changed
   tags: base
-
 - name: Install NOS3 required packages
   become: yes
   package:
-    state: present
+    state: latest
     name: "{{ osvars.packages_to_install }}"
   tags: base
 
+# Red Hat can-utils / socketcand / libsocketcan
+- name: Clean can-utils artifact path
+  become: yes
+  file:
+    state: absent
+    path: /tmp/can-utils
+- name: Clone can-utils repo
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  git:
+    dest: /tmp/can-utils
+    repo: https://github.com/linux-can/can-utils.git
+    version: v2018.02.0
+    accept_hostkey: yes
+    update: no
+- name: Autogen can-utils
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  script: 
+    cmd: /tmp/can-utils/autogen.sh
+    chdir: /tmp/can-utils
+- name: Build can-utils
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  make:
+    chdir: /tmp/can-utils
+- name: Install can-utils
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  make:
+    chdir: /tmp/can-utils
+    target: install
+    
+- name: Clean socketcand artifact path
+  become: yes
+  file:
+    state: absent
+    path: /tmp/socketcand
+- name: Clone socketcand repo
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  git:
+    dest: /tmp/socketcand
+    repo: https://github.com/linux-can/socketcand.git
+    version: 0.6.1
+    accept_hostkey: yes
+    update: no
+- name: Autoconf socketcand
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  shell: 
+    cmd: autoconf
+    chdir: /tmp/socketcand
+- name: Configure socketcand
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  shell: 
+    cmd: "/tmp/socketcand/configure --without-config"
+    chdir: /tmp/socketcand
+- name: Build socketcand
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  make:
+    chdir: /tmp/socketcand
+- name: Install socketcand
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  make:
+    chdir: /tmp/socketcand
+    target: install
+
+- name: Clean libsocketcan artifact path
+  become: yes
+  file:
+    state: absent
+    path: /tmp/libsocketcan
+- name: Clone libsocketcan repo
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  git:
+    dest: /tmp/libsocketcan
+    repo: https://github.com/lalten/libsocketcan.git
+    version: 077def398ad303043d73339112968e5112d8d7c8
+    accept_hostkey: yes
+    update: no
+- name: Autogen libsocketcan
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  script: 
+    cmd: /tmp/libsocketcan/autogen.sh
+    chdir: /tmp/libsocketcan
+- name: Configure libsocketcan
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  shell: 
+    cmd: "/tmp/libsocketcan/configure"
+    chdir: /tmp/libsocketcan
+- name: Build libsocketcan
+  become: yes
+  ignore_errors: yes
+  no_log: True
+  when: ansible_facts['os_family'] == "RedHat"
+  make:
+    chdir: /tmp/libsocketcan
+- name: Install libsocketcan
+  become: yes
+  ignore_errors: yes
+  no_log: True
+  when: ansible_facts['os_family'] == "RedHat"
+  make:
+    chdir: /tmp/libsocketcan
+    target: install
+
+# Ubuntu Xerces-C required for NOS Engine
+- name: Clean xerces-c path
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  file:
+    state: absent
+    path: /tmp/xerces-c-3.2.0
+- name: Download xerces-c
+  when: ansible_facts['os_family'] == "Debian"
+  get_url:
+    url: https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/xerces-c/3.2.0+debian-2/xerces-c_3.2.0+debian.orig.tar.gz
+    dest: /tmp/xerces-c-3.2.0.tar.gz
+    validate_certs: no
+- name: Extract xerces-c
+  when: ansible_facts['os_family'] == "Debian"
+  become: yes
+  unarchive:
+    src: /tmp/xerces-c-3.2.0.tar.gz
+    dest: /tmp/
+- name: Configure xerces-c
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  shell: 
+    cmd: "/tmp/xerces-c-3.2.0/configure CFLAGS=-m32 CXXFLAGS=-m32"
+    chdir: /tmp/xerces-c-3.2.0
+- name: Build xerces-c
+  become: yes
+  ignore_errors: yes
+  no_log: True
+  when: ansible_facts['os_family'] == "Debian"
+  make:
+    chdir: /tmp/xerces-c-3.2.0
+- name: Install xerces-c
+  become: yes
+  ignore_errors: yes
+  no_log: True
+  when: ansible_facts['os_family'] == "Debian"
+  make:
+    chdir: /tmp/xerces-c-3.2.0
+    target: install
+
+# Ubuntu VSCode
 - name: Install VS code on Ubuntu
   become: yes
   when: ansible_facts['os_family'] == "Debian"
@@ -63,21 +230,25 @@
   become: yes
   when: ansible_facts['os_family'] == "Debian"
   apt:
-    deb="/vagrant/nos3_filestore/packages/ubuntu/itc-common-cxx11-Release_1.9.1_i386.deb"
+    deb="/vagrant/nos3_filestore/packages/ubuntu/itc-common-Release_1.10.1_i386.deb"
   tags: base
 - name: Install NOS engine on Ubuntu
   become: yes
   when: ansible_facts['os_family'] == "Debian"
   apt:
-    deb="/vagrant/nos3_filestore/packages/ubuntu/nos-engine-cxx11-Release_1.5.1_i386.deb"
+    deb="/vagrant/nos3_filestore/packages/ubuntu/nos-engine-Release_1.6.1_i386.deb"
   tags: base
-- name: Install ITC common and NOS engine on CentOS
+  
+- name: Install ITC common and NOS engine on RHEL
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
   yum:
     name:
-      - "/vagrant/nos3_filestore/packages/centos/itc-common-cxx11-Release_1.9.1_i386.rpm"
-      - "/vagrant/nos3_filestore/packages/centos/nos-engine-cxx11-Release_1.4.0_i386.rpm"
+      - "/vagrant/nos3_filestore/packages/rhel/xerces-c-3.1.1-10.el7_7.i686.rpm"
+      - "/vagrant/nos3_filestore/packages/rhel/xerces-c-devel-3.1.1-10.el7_7.i686.rpm"
+      - "/vagrant/nos3_filestore/packages/rhel/itc-common-Release_1.10.1_i386.rpm"
+      - "/vagrant/nos3_filestore/packages/rhel/nos-engine-Release_1.6.1_i386.rpm"
+    disable_gpg_check: true
     state: present
   tags: base
 
@@ -88,17 +259,20 @@
   blockinfile:
     path: /etc/profile.d/all_users.sh
     create: yes
+    mode: '0666'
     marker: "# {mark} Ansible managed NOS3 background block"
     block: |
-      gsettings set org.mate.background picture-filename "/usr/share/backgrounds/nos3_background.png"
+      gsettings set org.gnome.desktop.background picture-uri "/usr/share/backgrounds/nos3_background.png"
   tags: base
 - name: Copy NOS3 background
   become: yes
   copy:
     src: /vagrant/nos3_filestore/backgrounds/nos3_background.png
     dest: /usr/share/backgrounds/
+    mode: '0666'
   tags: base
-- name: Install NOS3 background on CentOS
+
+- name: Install NOS3 background on RHEL
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
   blockinfile:
@@ -111,22 +285,13 @@
       # dconf key names / values
       picture-uri='file:///usr/share/backgrounds/nos3_background.png'
   tags: base
-- name: Use NOS3 background on CentOS
+- name: Use NOS3 background on RHEL
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
   command:  dconf update
   tags: base
 
 ##### Configure environment, crash reporting, and core dumps #####
-- name: Launch executable scripts
-  become: yes
-  blockinfile:
-    path: /etc/profile.d/all_users.sh
-    create: yes
-    marker: "# {mark} Ansible managed launch executables block"
-    block: |
-      gsettings set org.mate.caja.preferences executable-text-activation launch
-  tags: base
 - name: Up the message queue maximum
   become: yes
   lineinfile:
@@ -145,6 +310,7 @@
   tags: base
 - name: Update system config now
   become: yes
+  ignore_errors: yes
   command:  sysctl -p
   tags: base
 - name: Remove apport on Ubuntu
@@ -190,22 +356,20 @@
     regexp: 'kernel.yama.ptrace_scope'
     line: 'kernel.yama.ptrace_scope = 0'
   tags: base
-- name: Set soft real time priority limits on Ubuntu for cFS
+- name: Set soft real time priority limits
   become: yes
-  when: ansible_facts['os_family'] == "Debian"
   lineinfile:
     path: /etc/security/limits.conf
     create: yes
     regexp: 'soft.*rtprio'
     line: '*                soft    rtprio            99'
   tags: base
-- name: Set hard real time priority limits on Ubuntu for cFS
+- name: Set hard real time priority limits
   become: yes
-  when: ansible_facts['os_family'] == "Debian"
   lineinfile:
     path: /etc/security/limits.conf
     create: yes
     regexp: 'hard.*rtprio'
     line: '*                hard    rtprio            99'
   tags: base
-# No special crash reporting/debugging config on CentOS (yet)
+# No special crash reporting/debugging config on RHEL (yet)

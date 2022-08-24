@@ -1,6 +1,12 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Check VBox Version for compatibility
+if Gem::Version.new(`VBoxManage --version`.strip) <
+    Gem::Version.new('6.1.0')
+    abort "Please upgrade Virtualbox to 6.1.0 or later!"
+end 
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
@@ -10,27 +16,29 @@ nos3_version = /(\d+\.?)+/.match(nos3_version).to_s
 
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
-OS = cp.get_string_in_list("OS", ["ubuntu", "centos"], "ubuntu")
+OS = cp.get_string_in_list("OS", ["ubuntu", "oracle"], "ubuntu")
 GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COSMOS")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-    if (OS == "centos")
-        config.vm.box = "itc/itc-centos-7.6-x86_64-with-desktop"
+    if (OS == "oracle")
+        config.vm.box = "oraclelinux/8"
+        config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/8.json"
     else
-        config.vm.box = "itc/itc-ubuntu-mate-18.04-amd64"
+        config.vm.box = "bento/ubuntu-20.04"
+        config.vm.box_version = "202206.03.0"
     end
     config.vm.hostname = "nos3"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
-    config.vm.synced_folder "..", "/home/nos3/Desktop/github-nos3"
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
         vbox.cpus = 2
-        vbox.memory = "8192"
+        vbox.memory = "4096"
         vbox.customize ["modifyvm", :id, "--vram", 128]
         vbox.customize ["showvminfo", :id]
         vbox.customize ['storageattach', :id,  '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'dvddrive', '--medium', 'emptydrive']
         vbox.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vbox.customize ["modifyvm", :id, "--ioapic", "on"]
+        vbox.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
         # Speed up ruby gem installs
         vbox.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         vbox.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]

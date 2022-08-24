@@ -1,2 +1,2 @@
-OS:                 ubuntu      # "ubuntu" or "centos" (centos currently unsupported)
+OS:                 ubuntu      # "ubuntu" or "oracle"
 GROUND:             COSMOS      # "COSMOS", "AIT", "BOTH", or "NONE"
