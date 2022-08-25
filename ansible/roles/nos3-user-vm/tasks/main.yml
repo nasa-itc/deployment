@@ -1,3 +1,8 @@
+- name: Display OS variable
+  debug:
+    var: OS
+
+
 # Configure nos3 permissions, env, etc.
 - name:  Add nos3 user to various groups
   become: yes
@@ -45,11 +50,17 @@
       - kernel
       - kernel-devel 
       - kernel-headers 
-      - kernel-uek-devel
       - dkms 
       - make 
       - bzip2 
       - perl
+    state: latest
+- name: Install guest additions required packages for Oracle
+  become: yes
+  when: (OS == "oracle") and (ansible_facts['os_family'] == "RedHat")
+  package:
+    name: 
+      - kernel-uek-devel
     state: latest
 
 - name: Install guest additions required packages for Ubuntu

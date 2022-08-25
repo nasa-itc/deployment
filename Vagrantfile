@@ -16,17 +16,26 @@ nos3_version = /(\d+\.?)+/.match(nos3_version).to_s
 
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
-OS = cp.get_string_in_list("OS", ["ubuntu", "oracle"], "ubuntu")
+OS = cp.get_string_in_list("OS", ["ubuntu", "oracle", "rocky"], "ubuntu")
 GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COSMOS")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+    # Default to Ubuntu
+    config.vm.box = "bentu/ubuntu-20.04"
+    config.vm.box_version = "202206.03.0"
+    
+    # Was another OS was selected?
     if (OS == "oracle")
-        config.vm.box = "oraclelinux/8"
-        config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/8.json"
-    else
-        config.vm.box = "bento/ubuntu-20.04"
-        config.vm.box_version = "202206.03.0"
+        config.vm.box = "bento/oracle-8.5"
+        config.vm.box_version = "202112.23.0"
     end
+    
+    if (OS == "rocky")
+        config.vm.box = "bento/rockylinux-8.4"
+        config.vm.box_version = "202110.26.0"
+    end
+
+    # Configure machine
     config.vm.hostname = "nos3"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
     config.vm.provider "virtualbox" do |vbox|
@@ -35,7 +44,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vbox.memory = "4096"
         vbox.customize ["modifyvm", :id, "--vram", 128]
         vbox.customize ["showvminfo", :id]
-        vbox.customize ['storageattach', :id,  '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'dvddrive', '--medium', 'emptydrive']
+        vbox.customize ["storageattach", :id,  "--storagectl", "IDE Controller", "--port", 1, "--device", 0, "--type", "dvddrive", "--medium", "emptydrive"]
         vbox.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vbox.customize ["modifyvm", :id, "--ioapic", "on"]
         vbox.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
@@ -71,6 +80,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 ansible.extra_vars = {
                     filestore: "/tmp/filestore",
                     MACHINE: "#{machine}",
+                    OS: "#{OS}",
                     GROUND: "#{GROUND}",
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook"

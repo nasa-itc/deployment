@@ -69,15 +69,20 @@
   file:
     state: absent
     path: /tmp/can-utils
-- name: Clone can-utils repo
+- name: Can-utils repo
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
-  git:
-    dest: /tmp/can-utils
-    repo: https://github.com/linux-can/can-utils.git
-    version: v2018.02.0
-    accept_hostkey: yes
-    update: no
+  block:
+    - name: Clone can-utils repo
+      command: git clone https://github.com/linux-can/can-utils.git -b v2018.02.0
+      args:
+        chdir: /tmp/
+  #git:
+  #  dest: /tmp/can-utils
+  #  repo: https://github.com/linux-can/can-utils.git
+  #  version: v2018.02.0
+  #  accept_hostkey: yes
+  #  update: no
 - name: Autogen can-utils
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
@@ -101,15 +106,20 @@
   file:
     state: absent
     path: /tmp/socketcand
-- name: Clone socketcand repo
+- name: Socketcand repo
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
-  git:
-    dest: /tmp/socketcand
-    repo: https://github.com/linux-can/socketcand.git
-    version: 0.6.1
-    accept_hostkey: yes
-    update: no
+  block:
+    - name: Clone socketcand repo
+      command: git clone https://github.com/linux-can/socketcand.git -b 0.6.1
+      args:
+        chdir: /tmp/
+  #git:
+  #  dest: /tmp/socketcand
+  #  repo: https://github.com/linux-can/socketcand.git
+  #  version: 0.6.1
+  #  accept_hostkey: yes
+  #  update: no
 - name: Autoconf socketcand
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
@@ -139,15 +149,24 @@
   file:
     state: absent
     path: /tmp/libsocketcan
-- name: Clone libsocketcan repo
+- name: Libsocketcan repo
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
-  git:
-    dest: /tmp/libsocketcan
-    repo: https://github.com/lalten/libsocketcan.git
-    version: 077def398ad303043d73339112968e5112d8d7c8
-    accept_hostkey: yes
-    update: no
+  block:
+    - name: Clone socketcand repo
+      command: git clone https://github.com/lalten/libsocketcan.git
+      args:
+        chdir: /tmp/
+    - name: Checkout specific branch
+      command: git checkout 077def398ad303043d73339112968e5112d8d7c8
+      args:
+        chdir: /tmp/libsocketcan
+  #git:
+  #  dest: /tmp/libsocketcan
+  #  repo: https://github.com/lalten/libsocketcan.git
+  #  version: 077def398ad303043d73339112968e5112d8d7c8
+  #  accept_hostkey: yes
+  #  update: no
 - name: Autogen libsocketcan
   become: yes
   when: ansible_facts['os_family'] == "RedHat"
