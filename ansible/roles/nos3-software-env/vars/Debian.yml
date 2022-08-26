@@ -8,29 +8,31 @@ packages_to_install:
   - gcc-multilib
   - gedit
   - git
+  - gnome-terminal
   - google-mock
   - googletest
+  - nautilus
+  - python-apt
+  - python3-dev
+  - python3-pip
   #
   # NOS3
   #
   - dwarves
-  - minicom
+  - freeglut3-dev:i386
+  - lib32z1
   - libboost-dev:i386
   - libboost-system-dev:i386
   - libboost-program-options-dev:i386
   - libboost-filesystem-dev:i386
   - libboost-thread-dev:i386
   - libboost-regex-dev:i386
-  - libicu-dev:i386
-  - libxerces-c-dev
   - libgtest-dev
-  - freeglut3-dev:i386
-  - lib32z1
-  - gnome-terminal
-  - libsocketcan-dev
-  - python-apt
-  - nautilus
+  - libicu-dev:i386
   - libncurses5-dev
+  - libsocketcan-dev
+  - libxerces-c-dev
+  - minicom
   #
   # Quality of Life
   #
@@ -40,9 +42,9 @@ packages_to_install:
   - gnome-tweaks
   - htop
   - libncurses5 
-  - libtinfo5 
   - libncurses5-dev 
   - libncursesw5-dev
+  - libtinfo5 
   - lrzsz # zmodem, xmodem, ymodem
   - vim
   #

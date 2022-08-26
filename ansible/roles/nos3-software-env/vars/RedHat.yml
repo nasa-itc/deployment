@@ -9,7 +9,7 @@ packages_to_install:
   - gedit
   - git
   - patch
-  - python3
+  - python3-devel
   - python3-pip
   - rpm-build
   - yum-utils
@@ -17,13 +17,12 @@ packages_to_install:
   # NOS3
   #
   - boost-devel.i686
-  #- dwarves
   - gcc-c++
   - glibc-devel
-  - libgcc
-  - libstdc++-devel
-  - libglvnd-devel
   - libffi-devel
+  - libgcc
+  - libglvnd-devel
+  - libstdc++-devel
   #
   # Quality of Life
   #

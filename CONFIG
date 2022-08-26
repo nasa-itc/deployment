@@ -1,2 +1,2 @@
-OS:                 rocky       # "ubuntu", "oracle", or "rocky"
+OS:                 ubuntu      # "ubuntu", "oracle", or "rocky"
 GROUND:             COSMOS      # "COSMOS", "AIT", "BOTH", or "NONE"

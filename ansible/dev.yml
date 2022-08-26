@@ -6,4 +6,5 @@
     - role: nos3-user-vm
     - role: nos3-ground # COSMOS and/or AIT 
     - role: nos3-42 # 42
+    - role: nos3-cryptolib # CryptoLib
     
