@@ -1,0 +1,8 @@
+# Playbook to create a NOS3 server development machine
+- hosts: server
+  roles:
+    - role: nos3-software-env
+    - role: nos3-user
+    - role: nos3-ground # COSMOS and/or AIT 
+    - role: nos3-42 # 42
+    - role: nos3-cryptolib # CryptoLib

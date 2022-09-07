@@ -236,13 +236,31 @@
     chdir: /tmp/xerces-c-3.2.0
     target: install
 
-# Ubuntu VSCode
-- name: Install VS code on Ubuntu
+# Debian VSCode
+- name: Install VS code on Debian
   become: yes
   when: ansible_facts['os_family'] == "Debian"
   snap:
     name: code
     classic: yes
+
+# RHEL VSCode
+- name: Setup VS Code Repository on RHEL-Based Systems
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  yum_repository:
+      name: vscode
+      description: Microsoft Visual Studio Code
+      baseurl: https://packages.microsoft.com/yumrepos/vscode
+      enabled: yes
+      gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+      gpgcheck: yes
+
+- name: Install VS Code on RHEL-Based Systems
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  yum:
+      name: code
 
 ##### Install ITC common and NOS engine #####
 - name: Install ITC common on Ubuntu

@@ -4,5 +4,8 @@ localhost ansible_connection=local
 [dev]
 localhost ansible_connection=local
 
+[server]
+localhost ansible_connection=local
+
 [all]
 localhost ansible_connection=local
