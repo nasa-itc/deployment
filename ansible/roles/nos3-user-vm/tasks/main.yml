@@ -1,14 +1,14 @@
+---
 - name: Display OS variable
   debug:
     var: OS
-
 
 # Configure nos3 permissions, env, etc.
 - name:  Add nos3 user to various groups
   become: yes
   user:
     name: nos3
-    groups: domainusers, dialout, vboxsf, root
+    groups: domainusers, dialout, vagrant, vboxsf, root
   tags: base
   # Note: group root needed to find necessary library files to build
 
