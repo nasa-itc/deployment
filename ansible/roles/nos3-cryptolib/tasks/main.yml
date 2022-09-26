@@ -1,0 +1,29 @@
+---
+# CryptoLib Package Depenencies
+- name: Install CryptoLib dependencies for Debian
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  apt:
+    name:
+      - libgcrypt20-dev
+      - libgpg-error-dev
+      - libmariadb-dev
+      - libmariadb-dev-compat
+      - libcurl4-openssl-dev
+- name: Install CryptoLib dependencies for RedHat
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  yum:
+    name:
+      - libgcrypt-devel
+      - libgpg-error-devel
+      - mariadb-devel
+      - python38-devel
+      - libcurl-devel
+      
+# CryptoLib PIP3 Depenencies
+- name: PIP install pycryptodome
+  become: yes
+  pip: 
+    name: pycryptodome
+    state: latest

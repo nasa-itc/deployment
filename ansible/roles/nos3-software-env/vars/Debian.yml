@@ -1,32 +1,53 @@
 packages_to_install:
-  - git
+  #
+  # Necessities
+  #
   - cmake
   - cmake-qt-gui
-  - gcc-multilib
   - g++-multilib
-  - freeglut3-dev:i386
+  - gcc-multilib
+  - gedit
+  - git
+  - gnome-terminal
   - google-mock
   - googletest
-  - vim
-  - gedit
-  - dos2unix
-  - lrzsz # zmodem, xmodem, ymodem
-  - minicom
+  - nautilus
+  - python-apt
+  - python3-dev
+  - python3-pip
+  #
+  # NOS3
+  #
+  - dwarves
+  - freeglut3-dev:i386
+  - lib32z1
   - libboost-dev:i386
   - libboost-system-dev:i386
   - libboost-program-options-dev:i386
   - libboost-filesystem-dev:i386
+  - libboost-thread-dev:i386
   - libboost-regex-dev:i386
-  - libxerces-c-dev:i386
   - libgtest-dev
-  - dwarves
-  - lib32z1
-  - gnome-terminal
-  - ruby-dev
-  - qt4-default
-  - ruby-bundler
+  - libicu-dev:i386
+  - libncurses5-dev
   - libsocketcan-dev
-  - python-pip
-  - libfltk1.3-dev:i386
-  - libgpg-error-dev:i386 # CryptoLib
-  - libgcrypt20-dev:i386 # CryptoLib
+  - libxerces-c-dev
+  - minicom
+  #
+  # Quality of Life
+  #
+  - bash-completion
+  - dos2unix
+  - gitk
+  - gnome-tweaks
+  - htop
+  - libncurses5 
+  - libncurses5-dev 
+  - libncursesw5-dev
+  - libtinfo5 
+  - lrzsz # zmodem, xmodem, ymodem
+  - vim
+  #
+  # Buildroot
+  #
+  - dropbear-bin

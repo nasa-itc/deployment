@@ -3,50 +3,121 @@
   debug:
     var: GROUND
 
-# cosmos
+# COSMOS Ubuntu
+- name: Install COSMOS on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  block:
+  - name: Install QT from RPMs
+    ansible.builtin.apt_repository:
+      repo: ppa:brightbox/ruby-ng
+  - name: Install Ruby 2.5 on
+    package:
+      state: latest
+      name: 
+        - ruby2.5 
+        - ruby2.5-dev 
+        - ruby-switch
+      update_cache: yes
+  - name: Add rock-core/qt4 PPA
+    ansible.builtin.apt_repository:
+      repo: ppa:rock-core/qt4
+  - name: Install qt4 and other packages
+    package:
+      state: latest
+      name: 
+        - qt4-default
+        - qt4-dev-tools
+        - openssl
+        - zlib1g-dev
+        - libcanberra-gtk-module
+        - libpq-dev
+      update_cache: yes
+
+# COSMOS RedHat
+- name: Install COSMOS for RedHat
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  block:
+  - name: Install QT from RPMs
+    yum:
+      name:
+        - "/vagrant/nos3_filestore/packages/rhel/qt-devel-4.8.7-52.el8.x86_64.rpm"
+        - "/vagrant/nos3_filestore/packages/rhel/qt-common-4.8.7-52.el8.noarch.rpm"
+        - "/vagrant/nos3_filestore/packages/rhel/qt-4.8.7-52.el8.x86_64.rpm"
+        - "/vagrant/nos3_filestore/packages/rhel/qt-x11-4.8.7-52.el8.x86_64.rpm"
+      disable_gpg_check: true
+      state: present
+  - name: Install Ruby for RedHat
+    yum:
+      name:
+        - ruby-devel
+        - rubygem-bundler
+        - libcanberra-gtk2
+        - postgresql-devel
+      disable_gpg_check: true
+      state: present
+  - name: Gem psych 4.0.3 workaround for RedHat
+    ignore_errors: True
+    block:
+    - name: Remove psych gem
+      ignore_errors: True
+      shell:
+        cmd: gem uninstall -I psych
+    - name: Install rdoc
+      shell:
+        cmd: gem install rdoc -v 6.3.3
+    - name: Remove psych gem
+      ignore_errors: True
+      shell:
+        cmd: gem uninstall -I psych
+    - name: Install ruby-termios
+      shell:
+        cmd: gem install ruby-termios -v 1.1.0 --no-document
+    - name: Install yard
+      shell:
+        cmd: gem install yard -v 0.9.27 --no-document
+    - name: Install irb
+      shell:
+        cmd: gem install irb -v 0.9.6 --no-document
+
+# COSMOS
 - name: COSMOS
   when: (GROUND == "COSMOS") or (GROUND == "BOTH")
+  become: yes
   block:
-  - name: Install COSMOS on Ubuntu
-    become: yes
-    when: ansible_facts['os_family'] == "Debian"
-    block:
-    - name: Install ruby-termios gem
-      gem:
-        name: ruby-termios
-        user_install: no
-        include_doc: no
-    - name: Install rake gem on Ubuntu
-      shell:
-        cmd: gem install rake --no-ri --no-rdoc
-    - name: Install cosmos gem
-      become: yes
-      shell:
-        cmd: gem install -v 4.5.2 cosmos --no-ri --no-rdoc
-  - name: Install COSMOS on CentOS # Ugg... this is soooo... ugly!
-    become: yes
+  - name: COSMOS QT Fix
+    blockinfile:
+      path: /etc/profile.d/all_users.sh
+      create: yes
+      mode: '0666'
+      marker: "# {mark} Ansible managed NOS3 COSMOS QT Fix block"
+      block: |
+        export QT_X11_NO_MITSHM=1
+  - name: Remove psych gem
+    ignore_errors: True
+    shell:
+      cmd: gem uninstall -I psych
+  - name: Update gem system
+    ignore_errors: True
+    shell:
+      cmd: gem update --system 3.2.3 --no-document
+  - name: Install nokogiri gem
+    shell:
+      cmd: gem install nokogiri -v 1.12.5 --no-document
+  - name: Install cosmos gem
+    shell:
+      cmd: gem install cosmos -v 4.5.2 --no-document
+  - name: Bundle update for RedHat
     when: ansible_facts['os_family'] == "RedHat"
-    block:
-    - name: Install GPG key for rvm
-      shell:
-        cmd: gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-    - name: Retrieve rvm
-      get_url:
-        url: https://get.rvm.io
-        dest: /root/rvm-install.sh
-    - name: Install rvm
-      shell:
-        cmd: bash /root/rvm-install.sh stable
-    - name: Install ruby 2.4.2
-      shell:
-        cmd: bash -c 'source /etc/profile.d/rvm.sh; rvm install 2.4.2'
-    - name: Make ruby 2.4.2 default
-      shell:
-        cmd: bash -c 'source /etc/profile.d/rvm.sh; rvm use 2.4.2 --default'
-    - name: Install cosmos gem
-      become: yes
-      shell:
-        cmd: bash -c 'source /etc/profile.d/rvm.sh; gem install cosmos --no-ri --no-rdoc'
+    shell:
+      cmd: bundle update
+      chdir: /usr/local/share/gems/gems/cosmos-4.5.2
+  - name: Bundle update for Ubuntu
+    when: ansible_facts['os_family'] == "Debian"
+    shell:
+      cmd: bundle update
+      chdir: /var/lib/gems/2.5.0/gems/cosmos-4.5.2
 
 # AIT
 - name: AIT

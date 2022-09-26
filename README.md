@@ -143,6 +143,16 @@ Things that should be checked include:
 * Remove all shared folders
 * Ensure extended additions is not enabled / is not required
 
+## Creating a base box
+
+* Change your configuration as necessary
+* `vagrant up`
+* Wait until complete
+* Confirm no errors
+* `vagrant halt`
+* Remove or rename any previously generated `package.box` files in local directory
+* `vagrant package --base nos3_dev_1.5.1`
+
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the tags on this repository.
