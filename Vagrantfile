@@ -27,7 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Was another OS was selected?
     if (OS == "oracle")
         config.vm.box = "bento/oracle-8.5"
-        config.vm.box_version = "202112.23.0"
+        config.vm.box_version = "202112.19.0"
     end
     
     if (OS == "rocky")
@@ -38,6 +38,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Configure machine
     config.vm.hostname = "nos3"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
+    
+    # https://github.com/hashicorp/vagrant/issues/5186#issuecomment-312349002
+    config.ssh.insert_key = false
+
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
         vbox.cpus = 2
