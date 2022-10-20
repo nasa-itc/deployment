@@ -19,6 +19,7 @@ git submodule add -f -b main https://github.com/nasa-itc/arducam.git ./component
 git submodule add -f -b main https://github.com/nasa-itc/generic_reaction_wheel.git ./components/generic_reaction_wheel
 git submodule add -f -b main https://github.com/nasa-itc/novatel_oem615.git ./components/novatel_oem615
 git submodule add -f -b main https://github.com/nasa-itc/sample.git ./components/sample
+git submodule add -f -b main https://github.com/nasa-itc/component_template.git ./components/template
 
 
 ###
