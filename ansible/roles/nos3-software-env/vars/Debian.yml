@@ -38,6 +38,7 @@ packages_to_install:
   #
   - bash-completion
   - dos2unix
+  - gdb
   - gitk
   - gnome-tweaks
   - htop
