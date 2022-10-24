@@ -38,7 +38,7 @@ RUN cd /tmp \
     && wget https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/xerces-c/3.2.0+debian-2/xerces-c_3.2.0+debian.orig.tar.gz \
     && tar -xf /tmp/xerces-c_3.2.0+debian.orig.tar.gz \
     && cd /tmp/xerces-c-3.2.0 \
-    && /tmp/xerces-c-3.2.0/configure CFLAGS=-m32 CXXFLAGS=-m32 \
+    && /tmp/xerces-c-3.2.0/configure --prefix=/usr CFLAGS=-m32 CXXFLAGS=-m32 \
     && cd /tmp/xerces-c-3.2.0 \
     && make install
 
