@@ -12,6 +12,7 @@ RUN apt-get update -y \
         cmake \
         g++-multilib \
         gcc-multilib \
+		gdb \
         python-apt \
         python3-dev \
         python3-pip \
@@ -30,6 +31,7 @@ RUN apt-get update -y \
         libsocketcan-dev \
         libxerces-c-dev \
         wget \
+		netcat \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Xerces-C required for NOS Engine
@@ -48,4 +50,5 @@ ADD ./nos3_filestore /nos3_filestore/
 RUN sed 's/fs.mqueue.msg_max/fs.mqueue.msg_max=500/' /etc/sysctl.conf \
     && apt-get install -y \
         /nos3_filestore/packages/ubuntu/itc-common-Release_1.10.1_i386.deb \
-        /nos3_filestore/packages/ubuntu/nos-engine-Release_1.6.1_i386.deb
+        /nos3_filestore/packages/ubuntu/nos-engine-Release_1.6.1_i386.deb \
+    && ln -s /usr/lib/libnos_engine_client.so /usr/lib/libnos_engine_client_cxx11.so
