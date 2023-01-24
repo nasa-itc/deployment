@@ -36,8 +36,8 @@ git submodule add -f -b nos3-main https://github.com/nasa-itc/CF.git ./fsw/apps/
 git submodule add -f -b nos3-main https://github.com/nasa-itc/cfs_lib.git ./fsw/apps/cfs_lib
 git submodule add -f -b nos3-main https://github.com/nasa-itc/CFS_CI.git ./fsw/apps/ci
 #git submodule add -f -b nos3-main https://github.com/nasa-itc/cfs_cs.git ./fsw/apps/cs
-#git submodule add -f -b nos3-main https://github.com/nasa-itc/cfs_ds.git ./fsw/apps/ds
-#git submodule add -f -b nos3-main https://github.com/nasa-itc/cfs_fm.git ./fsw/apps/fm
+git submodule add -f -b nos3-main https://github.com/nasa-itc/DS.git ./fsw/apps/ds
+git submodule add -f -b nos3-main https://github.com/nasa-itc/FM.git ./fsw/apps/fm
 git submodule add -f -b nos3-main https://github.com/nasa-itc/HK.git ./fsw/apps/hk
 git submodule add -f -b nos3-main https://github.com/nasa-itc/HS.git ./fsw/apps/hs
 git submodule add -f -b main https://github.com/nasa-itc/hwlib.git ./fsw/apps/hwlib

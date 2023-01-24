@@ -8,6 +8,7 @@ packages_to_install:
   - cmake-gui
   - gedit
   - git
+  - make
   - patch
   - python3-devel
   - python3-pip

@@ -108,8 +108,8 @@ else
     sudo yum install -y epel-release
     sudo yum -y update
     sudo yum install -y python3-pip
-    sudo pip install --upgrade 'pip<21.0'
-    sudo pip install markupsafe typing ansible==2.9.13
+    sudo pip3 install --upgrade 'pip<21.0'
+    sudo pip3 install markupsafe typing ansible==2.9.13
 fi
 
 ####################
@@ -137,5 +137,5 @@ ANSIBLE_CALLBACK_WHITELIST=profile_tasks \
 ansible-playbook ansible/server.yml \
     --ask-become-pass \
     -i ansible/hosts.txt \
-    --extra-vars "GROUND=COSMOS" \
+    --extra-vars "GROUND=NONE" \
     "$@" # we allow passtrough arguments from this script to ansible-playbook command
