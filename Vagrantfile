@@ -22,7 +22,7 @@ GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COS
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
     config.vm.box = "bento/ubuntu-20.04"
-    config.vm.box_version = "202206.03.0"
+    config.vm.box_version = "202212.11.0"
     
     # Was another OS was selected?
     if (OS == "oracle")

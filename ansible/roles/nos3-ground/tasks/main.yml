@@ -105,6 +105,9 @@
   - name: Install nokogiri gem
     shell:
       cmd: gem install nokogiri -v 1.12.5 --no-document
+  - name: Install bundler gem
+    shell:
+      cmd: gem install bundler -v 2.3.26
   - name: Install cosmos gem
     shell:
       cmd: gem install cosmos -v 4.5.2 --no-document
