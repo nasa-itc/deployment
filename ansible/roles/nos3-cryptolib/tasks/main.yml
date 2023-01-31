@@ -19,6 +19,7 @@
       - libgpg-error-devel
       - mariadb-devel
       - python38-devel
+      - python39-setuptools
       - libcurl-devel
       
 # CryptoLib PIP3 Depenencies
@@ -27,3 +28,4 @@
   pip: 
     name: pycryptodome
     state: latest
+  tags: pycryptodome
