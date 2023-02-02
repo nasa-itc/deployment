@@ -34,7 +34,6 @@
   become: yes
   when: ansible_facts['os_family'] == "Debian"
   apt: update_cache=yes
-  changed_when: false # never report changed
   tags: base
 - name: Add epel-release repository for yum
   become: yes
@@ -60,7 +59,6 @@
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   yum: update_cache=yes
-  changed_when: false # never report changed
   tags: base
 - name: Install NOS3 required packages
   become: yes

@@ -4,6 +4,15 @@
     - role: nos3-software-env
     - role: nos3-user
     - role: nos3-user-vm
+    - role: rvm1-ansible
+      when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+      tags: ruby
+      become: yes
+      become_user: nos3
+      rvm1_rubies: ['ruby-2.5.8']
+      rvm1_ruby_install_flags: '--disable-dtrace'
+      rvm1_bundler_install: False
+      rvm1_user: 'nos3'
     - role: nos3-ground # COSMOS and/or AIT 
     - role: nos3-42 # 42
     - role: nos3-cryptolib # CryptoLib

@@ -74,7 +74,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
         config.vm.define machine, primary: is_primary, autostart: is_primary do |nos3|
             nos3.vm.provider "virtualbox" do |vbox|
-                vbox.name = "nos3_#{machine}_#{nos3_version}"
+                vbox.name = "nos3_#{machine}_#{nos3_version}_#{OS}"
             end
 
             nos3.vm.provision "ansible_local" do |ansible|
@@ -88,7 +88,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                     GROUND: "#{GROUND}",
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook"
-                #ansible.verbose = "true" # set to "true" or "vvv" or "vvvv" for debugging
+                ansible.galaxy_role_file = "ansible/requirements.yml"
+                #ansible.tags="guest-additions" # debugging example to just run tasks/roles with this tag
+                #ansible.verbose = "vvv" # set to "true" or "vvv" or "vvvv" for debugging
             end
         end
     end

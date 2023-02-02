@@ -24,6 +24,7 @@ packages_to_install:
   - libgcc
   - libglvnd-devel
   - libstdc++-devel
+  - readline-devel.i686
   #
   # Quality of Life
   #

@@ -40,31 +40,39 @@
   shell:
     cmd: usermod -p vagrant vagrant
 
+# NOTE:  Not sure this is the best way to do this... there are some hardwired things based on experiences with Oracle Linux 8.5 and Install Desktop Environment
 # Virtual Box
-- name: Install guest additions required packages for RHEL
-  become: yes
-  when: ansible_facts['os_family'] == "RedHat"
-  package:
-    name: 
-      - gcc 
-      - kernel
-      - kernel-devel 
-      - kernel-headers 
-      - dkms 
-      - make 
-      - bzip2 
-      - perl
-    state: latest
-- name: Install guest additions required packages for Oracle
-  become: yes
-  when: (OS == "oracle") and (ansible_facts['os_family'] == "RedHat")
-  package:
-    name: 
-      - kernel-uek-devel
-    state: latest
+- name: Guest additions
+  tags: guest-additions
+  block:
+  - name: Install guest additions required packages for Rocky
+    become: yes
+    when: (OS == "rocky") and ansible_facts['os_family'] == "RedHat"
+    package:
+      name: 
+        - gcc 
+        - kernel
+        - kernel-devel 
+        - kernel-headers 
+        - dkms 
+        - make 
+        - bzip2 
+        - perl
+      state: latest
+  - name: Install guest additions required packages for Oracle
+    become: yes
+    when: (OS == "oracle") and (ansible_facts['os_family'] == "RedHat")
+    package:
+      name: 
+        - "kernel-uek-devel-5.4.17-2136.315.5.el8uek.x86_64"
+  - name: Build guest additions for new Oracle kernel
+    become: yes
+    when: (OS == "oracle") and (ansible_facts['os_family'] == "RedHat")
+    shell:
+      cmd: /sbin/rcvboxadd quicksetup 5.4.17-2136.315.5.el8uek.x86_64
 
-- name: Install guest additions required packages for Ubuntu
-  become: yes
-  when: ansible_facts['os_family'] == "Debian"
-  package:
-    name: "linux-headers-{{ ansible_kernel }}"
+  - name: Install guest additions required packages for Ubuntu
+    become: yes
+    when: ansible_facts['os_family'] == "Debian"
+    package:
+      name: "linux-headers-{{ ansible_kernel }}"
