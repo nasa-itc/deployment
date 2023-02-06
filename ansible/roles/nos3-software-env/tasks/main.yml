@@ -332,6 +332,26 @@
   command:  dconf update
   tags: base
 
+- name: Versioning
+  tags:
+    - base
+    - version
+  block:
+  - name: Include versioning variables
+    include_vars: Version.yml
+  - name: Add version and timestamp info config file to record basebox versioning
+    become: yes
+    blockinfile:
+      path: /etc/nos3-deployment-release
+      create: yes
+      block: |
+        vm_provisioning_date="{{ date }}"
+        deployment_repo_sha1="{{ git_sha1 }}"
+        deployment_repo_date="{{ git_date }}"
+        deployment_repo_refs="{{ git_refs }}"
+        deployment_repo_tags="{{ git_tags }}"
+        deployment_repo_modified_files="{{ git_mods }}"
+
 ##### Configure environment, crash reporting, and core dumps #####
 - name: Up the message queue maximum
   become: yes
