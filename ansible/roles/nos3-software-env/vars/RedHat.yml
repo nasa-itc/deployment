@@ -8,6 +8,7 @@ packages_to_install:
   - cmake-gui
   - gedit
   - git
+  - make
   - patch
   - python3-devel
   - python3-pip
@@ -23,6 +24,7 @@ packages_to_install:
   - libgcc
   - libglvnd-devel
   - libstdc++-devel
+  - readline-devel.i686
   #
   # Quality of Life
   #

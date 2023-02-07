@@ -1,0 +1,6 @@
+date: "{{ lookup('pipe', 'date +%Y/%m/%d-%H:%M:%S') }}"
+git_sha1: "{{ lookup('pipe', 'git log -1 --format=''%H''') }}"
+git_date: "{{ lookup('pipe', 'git log -1 --format=''%cd''') }}"
+git_refs: "{{ lookup('pipe', 'git log -1 --format=''%d''') }}"
+git_tags: "{{ lookup('pipe', 'git describe --tags', errors='ignore') }}"
+git_mods: "{{ lookup('pipe', 'git status --porcelain | paste -sd '',''') }}"

@@ -22,7 +22,7 @@ GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COS
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
     config.vm.box = "bento/ubuntu-20.04"
-    config.vm.box_version = "202206.03.0"
+    config.vm.box_version = "202212.11.0"
     
     # Was another OS was selected?
     if (OS == "oracle")
@@ -31,8 +31,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
     
     if (OS == "rocky")
-        config.vm.box = "bento/rockylinux-8.4"
-        config.vm.box_version = "202110.26.0"
+        config.vm.box = "bento/rockylinux-8.7"
+        config.vm.box_version = "202212.11.0"
     end
 
     # Configure machine
@@ -87,8 +87,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                     OS: "#{OS}",
                     GROUND: "#{GROUND}",
                 }
-                ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook"
-                #ansible.verbose = "true" # set to "true" or "vvv" or "vvvv" for debugging
+                ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
+                ansible.galaxy_role_file = "ansible/requirements.yml"
+                #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag
+                #ansible.verbose = "vvv" # set to "true" or "vvv" or "vvvv" for debugging
             end
         end
     end

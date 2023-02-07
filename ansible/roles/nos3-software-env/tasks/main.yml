@@ -2,19 +2,26 @@
 ##### GUI #####
 - name: Install Desktop Environment
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   command: yum group install 'Server with GUI' -y
   args:
     warn: false
 - name: Default to graphics
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   command: systemctl set-default graphical
 
 ##### O/S packages, environment, NOS3 branding, etc. #####
 - name: Include OS specific variables
+  when: ansible_facts['os_family'] == "Debian"
   include_vars:
-    file: "{{ ansible_facts['os_family'] }}.yml"
+    file: "Debian.yml"
+    name: osvars
+  tags: base
+- name: Include OS specific variables
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  include_vars:
+    file: "RedHat.yml"
     name: osvars
   tags: base
 
@@ -27,11 +34,10 @@
   become: yes
   when: ansible_facts['os_family'] == "Debian"
   apt: update_cache=yes
-  changed_when: false # never report changed
   tags: base
 - name: Add epel-release repository for yum
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   yum:
     name: "epel-release"
     state: present
@@ -39,22 +45,20 @@
 - name: Add powertools repository for yum
   become: yes
   ignore_errors: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   command: yum config-manager --set-enabled powertools  
   args:
     warn: false
 - name: Add ol8_codeready_builder repository for yum
   become: yes
-  ignore_errors: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (OS == "oracle")
   command: yum config-manager --set-enabled ol8_codeready_builder  
   args:
     warn: false
 - name: Update yum package cache
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   yum: update_cache=yes
-  changed_when: false # never report changed
   tags: base
 - name: Install NOS3 required packages
   become: yes
@@ -71,7 +75,7 @@
     path: /tmp/can-utils
 - name: Can-utils repo
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   block:
     - name: Clone can-utils repo
       command: git clone https://github.com/linux-can/can-utils.git -b v2018.02.0
@@ -85,18 +89,18 @@
   #  update: no
 - name: Autogen can-utils
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   script: 
     cmd: /tmp/can-utils/autogen.sh
     chdir: /tmp/can-utils
 - name: Build can-utils
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   make:
     chdir: /tmp/can-utils
 - name: Install can-utils
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   make:
     chdir: /tmp/can-utils
     target: install
@@ -108,7 +112,7 @@
     path: /tmp/socketcand
 - name: Socketcand repo
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   block:
     - name: Clone socketcand repo
       command: git clone https://github.com/linux-can/socketcand.git -b 0.6.1
@@ -122,24 +126,24 @@
   #  update: no
 - name: Autoconf socketcand
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   shell: 
     cmd: autoconf
     chdir: /tmp/socketcand
 - name: Configure socketcand
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   shell: 
     cmd: "/tmp/socketcand/configure --without-config"
     chdir: /tmp/socketcand
 - name: Build socketcand
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   make:
     chdir: /tmp/socketcand
 - name: Install socketcand
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   make:
     chdir: /tmp/socketcand
     target: install
@@ -151,7 +155,7 @@
     path: /tmp/libsocketcan
 - name: Libsocketcan repo
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   block:
     - name: Clone socketcand repo
       command: git clone https://github.com/lalten/libsocketcan.git
@@ -169,13 +173,13 @@
   #  update: no
 - name: Autogen libsocketcan
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   script: 
     cmd: /tmp/libsocketcan/autogen.sh
     chdir: /tmp/libsocketcan
 - name: Configure libsocketcan
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   shell: 
     cmd: "/tmp/libsocketcan/configure"
     chdir: /tmp/libsocketcan
@@ -183,14 +187,14 @@
   become: yes
   ignore_errors: yes
   no_log: True
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   make:
     chdir: /tmp/libsocketcan
 - name: Install libsocketcan
   become: yes
   ignore_errors: yes
   no_log: True
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   make:
     chdir: /tmp/libsocketcan
     target: install
@@ -247,7 +251,7 @@
 # RHEL VSCode
 - name: Setup VS Code Repository on RHEL-Based Systems
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   yum_repository:
       name: vscode
       description: Microsoft Visual Studio Code
@@ -258,7 +262,7 @@
 
 - name: Install VS Code on RHEL-Based Systems
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   yum:
       name: code
 
@@ -278,7 +282,7 @@
   
 - name: Install ITC common and NOS engine on RHEL
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   yum:
     name:
       - "/vagrant/nos3_filestore/packages/rhel/xerces-c-3.1.1-10.el7_7.i686.rpm"
@@ -311,7 +315,7 @@
 
 - name: Install NOS3 background on RHEL
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   blockinfile:
     path: /etc/dconf/db/local.d/02-gnome-desktop-background
     create: yes
@@ -324,9 +328,29 @@
   tags: base
 - name: Use NOS3 background on RHEL
   become: yes
-  when: ansible_facts['os_family'] == "RedHat"
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   command:  dconf update
   tags: base
+
+- name: Versioning
+  tags:
+    - base
+    - version
+  block:
+  - name: Include versioning variables
+    include_vars: Version.yml
+  - name: Add version and timestamp info config file to record basebox versioning
+    become: yes
+    blockinfile:
+      path: /etc/nos3-deployment-release
+      create: yes
+      block: |
+        vm_provisioning_date="{{ date }}"
+        deployment_repo_sha1="{{ git_sha1 }}"
+        deployment_repo_date="{{ git_date }}"
+        deployment_repo_refs="{{ git_refs }}"
+        deployment_repo_tags="{{ git_tags }}"
+        deployment_repo_modified_files="{{ git_mods }}"
 
 ##### Configure environment, crash reporting, and core dumps #####
 - name: Up the message queue maximum
