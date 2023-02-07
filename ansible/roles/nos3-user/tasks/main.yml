@@ -3,20 +3,37 @@
 # user account, env vars, etc.
 
 # Create nos3 user and group
-- name: Create nos3 group
+- name: Create domainusers group
   become: yes
   group:
-    name: nos3
+    name: domainusers
   tags: base
+
 - name:  Create nos3 user and add nos3 groups
   become: yes
   user:
     name: nos3
     password: $6$.mG1a/zL$f1LcckhnvYRUxQZrGeWVBh.nNAJu9qNIX9v1zvivsc67SjqGapbXNFS4e2/uInkqSas64WwmBRJ45uqSB.nSZ1
-    group: nos3
-    groups: vboxsf,dialout
+    group: domainusers
+    groups: domainusers, dialout
     shell: /bin/bash
   tags: base
+
+# Change /opt/nos3 directory ownership
+- name: Change /opt/nos3 directory ownership
+  become: yes
+  file:
+    path: /opt/nos3
+    state: directory
+    owner: nos3
+    group: domainusers
+
+# Edit permissions for /opt/nos3
+- name: Change /opt/nos3 directory permissions
+  become: yes
+  file:
+    path: /opt/nos3
+    mode: '777'
 
 # Configure nos3 permissions, env, etc.
 - name: Set nos3 as owner of home directory
@@ -26,13 +43,7 @@
     state: directory
     recurse: yes
     owner: nos3
-    group: nos3
-- name: Add nos3 user as a sudoer
-  become: yes
-  lineinfile:
-    path: /etc/sudoers.d/nos3
-    create: yes
-    line: 'nos3 ALL=(ALL) NOPASSWD:ALL'
+    group: domainusers
   tags: base
 - name: Copy ssh keys to nos3
   become: yes
@@ -43,7 +54,7 @@
       state: directory
       mode: '0700'
       owner: nos3
-      group: nos3
+      group: domainusers
   - name: Create .ssh agent env file if it does not exist
     copy:
       content: ''
@@ -51,14 +62,14 @@
       force: no
       mode: '0600'
       owner: nos3
-      group: nos3
+      group: domainusers
 - name:  Auto load ssh key
   become: yes
   blockinfile:
     path: /home/nos3/.bashrc
     create: yes
     owner: nos3
-    group: nos3
+    group: domainusers
     marker: "# {mark} Ansible managed auto load ssh key block"
     block: |
         # Automatically load ssh key when a terminal is opened
@@ -83,8 +94,9 @@
   lineinfile:
     path: /home/nos3/.gdbinit
     create: yes
+    mode: '0666'
     owner: nos3
-    group: nos3
+    group: domainusers
     line: 'handle all ignore nostop noprint'
   tags: base
 - name:  Set up nos3 user environment # min:106, custom:25
@@ -92,14 +104,43 @@
     msg: TODO - Set up nos3 user environment (Desktop, convenience scripts)
   tags: base
 
-# Hide the vagrant user
-- name:  Hide vagrant user
-  become: yes
-  blockinfile:
-    path: /var/lib/AccountsService/users/vagrant
-    create: yes
-    marker: "# {mark} Ansible managed launch hide vagrant user block"
-    block: |
-      [User]
-      SystemAccount=true
-  tags: base
+# Bring back nice to haves in Gnome
+- name: GNOME Nice to haves
+  tags: gnome-nice-to-haves
+  block:
+  # Ugg... python/pip stuff first
+  - name: Download get-pip.py for Rocky
+    when: (OS == "rocky")
+    ansible.builtin.get_url:
+      url: https://bootstrap.pypa.io/pip/3.6/get-pip.py # Ugg... hardcoded 3.6 :-(
+      dest: /tmp/get-pip.py
+      mode: '0440'
+  - name: Download get-pip.py for Oracle or Ubuntu
+    when: (OS == "oracle") or (OS == "ubuntu")
+    ansible.builtin.get_url:
+      url: https://bootstrap.pypa.io/get-pip.py
+      dest: /tmp/get-pip.py
+      mode: '0440'
+  - name: Execute pip install script for the ansible python version
+    become: true
+    script: /tmp/get-pip.py
+    args:
+      executable: "{{ ansible_python.executable }}"
+  - name: PIP install psutil
+    become: true
+    command:
+      cmd: "{{ ansible_python.executable }} -m pip install psutil"
+  - name: GNOME Preferences - Minimize, maximize, close buttons
+    become: true
+    become_user: nos3
+    community.general.dconf:
+      key: "/org/gnome/desktop/wm/preferences/button-layout"
+      value: "':minimize,maximize,close'"
+      state: present    
+  - name: GNOME Preferences - Window list
+    become: true
+    become_user: nos3
+    dconf:
+      key: "/org/gnome/shell/enabled-extensions"
+      value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
+      state: present

@@ -1,53 +1,52 @@
 packages_to_install:
-  - git
-  - vim
-  - cmake
-  - cmake-gui
-  - gmock
-  - gtest
-  - dos2unix
-  - dwarves
-  - lrzsz # zmodem, xmodem, ymodem
-  - minicom
-  - code
-  - glibc-devel.i686 
-  - libgcc.i686 
-  - libstdc++-devel.i686
-  - freeglut-devel.i686
-  - mesa-libGLU-devel.i686
-  - libglvnd-devel.i686
-  - patch
+  #
+  # Necessities
+  #
   - autoconf
   - automake
-  - bison
+  - cmake
+  - cmake-gui
+  - gedit
+  - git
+  - make
+  - patch
+  - python3-devel
+  - python3-pip
+  - rpm-build
+  - yum-utils
+  #
+  # NOS3
+  #
+  - boost-devel.i686
+  - gcc-c++
+  - glibc-devel
   - libffi-devel
+  - libgcc
+  - libglvnd-devel
+  - libstdc++-devel
+  - readline-devel.i686
+  #
+  # Quality of Life
+  #
+  - bash-completion
+  - ccache
+  - ctags 
+  - dos2unix
+  - gitk
+  - gnome-terminal
+  - gnome-tweaks
+  - htop
   - libtool
-  - qt-devel
-  - libsocketcan-dev
-  - python-pip
-  - mesa-dri-drivers.i686
-#  - kernel-devel
-#  - gmock 
-#  - binutils-devel
-#  - gcc-c++
-#  - gdb
-#  - python-libs
-#  - python
-#  - lcov
-#  - gedit
-#  - xterm
-#  - zlib
-#  - fltk
-#  - xerces-c
-#  - boost
-#  - boost-devel
-#  - boost-locale
-#  - boost-atomic
-#  - boost-chrono
-#  - boost-date-time
-#  - boost-filesystem
-#  - boost-program-options
-#  - boost-regex
-#  - boost-serialization
-#  - boost-system
-#  - boost-thread
+  - libusb
+  - lrzsz # zmodem, xmodem, ymodem
+  - minicom
+  - tmux
+  - vim
+  - xclip
+  - zsh
+  #
+  # Buildroot
+  #
+  - bison
+  - dropbear
+  - perl-ExtUtils-MakeMaker

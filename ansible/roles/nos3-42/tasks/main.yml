@@ -1,13 +1,31 @@
 ---
 # Get  42 installed
+- name: Install 42 dependencies for RedHat
+  become: yes
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  yum:
+    name:
+      - glibc-devel.i686
+      - freeglut-devel.i686
+      - mesa-dri-drivers.i686
+      - mesa-libGL-devel.i686
+      - mesa-libGLU-devel.i686
+- name: Clean 42 artifact path
+  become: yes
+  file:
+    state: absent
+    path: /opt/nos3/42
 - name: Clone 42 repo
   become: yes
-  git:
-    dest: '/opt/nos3/42'
-    repo: 'https://github.com/ericstoneking/42.git'
-    version: bb9d25d5767ea2df3e4c74736252e70d8c845b77
-    update: no
-- name:  Change 42 build
+  command: git clone https://github.com/ericstoneking/42.git
+  args:
+    chdir: /opt/nos3
+- name: Checkout specific branch
+  become: yes
+  command: git checkout f20d8d517b352b868d2f45ee3bffdb7deeedb218
+  args:
+    chdir: /opt/nos3/42
+- name: Change 42 build
   become: yes
   block:
   - name:  Compile 42 as 32 bit
@@ -20,6 +38,11 @@
       path: /opt/nos3/42/Makefile
       regexp: 'LFLAGS = -L'
       replace: 'LFLAGS = -m32 -L'
+  - name:  Use GLUT
+    replace:
+      path: /opt/nos3/42/Makefile
+      regexp: '#GLUT_OR_GLFW = _USE_GLUT_'
+      replace: 'GLUT_OR_GLFW = _USE_GLUT_'
 - name: Build 42
   become: yes
   make:
@@ -31,4 +54,16 @@
     state: directory
     recurse: yes
     owner: nos3
-    group: nos3
+    group: domainusers
+- name: Add symlink for NOS Engine Client
+  become: yes
+  file:
+    src: /usr/lib/libnos_engine_client.so
+    dest: /usr/lib/libnos_engine_client_cxx11.so
+    state: link
+- name: Change /opt/nos3/42 directory permissions
+  become: yes
+  file:
+    path: /opt/nos3/42
+    recurse: yes
+    mode: '775'

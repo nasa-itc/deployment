@@ -3,3 +3,5 @@
 #
 .vagrant
 .vscode
+*.box
+rvm1-ansible

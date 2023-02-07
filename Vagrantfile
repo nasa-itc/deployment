@@ -1,6 +1,12 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Check VBox Version for compatibility
+if Gem::Version.new(`VBoxManage --version`.strip) <
+    Gem::Version.new('6.1.0')
+    abort "Please upgrade Virtualbox to 6.1.0 or later!"
+end 
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
@@ -10,27 +16,42 @@ nos3_version = /(\d+\.?)+/.match(nos3_version).to_s
 
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
-OS = cp.get_string_in_list("OS", ["ubuntu", "centos"], "ubuntu")
+OS = cp.get_string_in_list("OS", ["ubuntu", "oracle", "rocky"], "ubuntu")
 GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COSMOS")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-    if (OS == "centos")
-        config.vm.box = "itc/itc-centos-7.6-x86_64-with-desktop"
-    else
-        config.vm.box = "itc/itc-ubuntu-mate-18.04-amd64"
+    # Default to Ubuntu
+    config.vm.box = "bento/ubuntu-20.04"
+    config.vm.box_version = "202212.11.0"
+    
+    # Was another OS was selected?
+    if (OS == "oracle")
+        config.vm.box = "bento/oracle-8.5"
+        config.vm.box_version = "202112.19.0"
     end
+    
+    if (OS == "rocky")
+        config.vm.box = "bento/rockylinux-8.7"
+        config.vm.box_version = "202212.11.0"
+    end
+
+    # Configure machine
     config.vm.hostname = "nos3"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
-    config.vm.synced_folder "..", "/home/nos3/Desktop/github-nos3"
+    
+    # https://github.com/hashicorp/vagrant/issues/5186#issuecomment-312349002
+    config.ssh.insert_key = false
+
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
         vbox.cpus = 2
-        vbox.memory = "8192"
+        vbox.memory = "4096"
         vbox.customize ["modifyvm", :id, "--vram", 128]
         vbox.customize ["showvminfo", :id]
-        vbox.customize ['storageattach', :id,  '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'dvddrive', '--medium', 'emptydrive']
+        vbox.customize ["storageattach", :id,  "--storagectl", "IDE Controller", "--port", 1, "--device", 0, "--type", "dvddrive", "--medium", "emptydrive"]
         vbox.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vbox.customize ["modifyvm", :id, "--ioapic", "on"]
+        vbox.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
         # Speed up ruby gem installs
         vbox.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         vbox.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
@@ -63,10 +84,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 ansible.extra_vars = {
                     filestore: "/tmp/filestore",
                     MACHINE: "#{machine}",
+                    OS: "#{OS}",
                     GROUND: "#{GROUND}",
                 }
-                ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook"
-                #ansible.verbose = "true" # set to "true" or "vvv" or "vvvv" for debugging
+                ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
+                ansible.galaxy_role_file = "ansible/requirements.yml"
+                #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag
+                #ansible.verbose = "vvv" # set to "true" or "vvv" or "vvvv" for debugging
             end
         end
     end

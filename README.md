@@ -20,7 +20,8 @@ The configuration file must manually be edited prior to provisioning.
 This file can be found at the top level of this repository and is called `CONFIG`.
 Let's walk through your options:
 * Operating System (OS)
-  - `centos` or Community Enterprise Operating System is a distribution based on RHEL (Red Hat Enterprise Linux)
+  - `oracle` is a distribution based on RHEL (Red Hat Enterprise Linux)
+  - `rocky` is a distribution based on RHEL
   - `ubuntu` is a distribution of Debian GNU/Linux
 * Ground Software (GROUND)
   - `ait` is a Python-based software suite developed to handle ground data system, electronic ground support equipment, commanding, telemetry uplink/downlink, and sequencing for JPL International Space Station and CubeSat Missions
@@ -33,7 +34,7 @@ Let's walk through your options:
 
 The default configuration is currently set up as: `ubuntu`, `cosmos`, `dev`.
 
-## Provisioning
+## Provisioning from Scratch
 
 Once you've selected your desired configuration, you're ready to provision your VM.
 This essentially means downloading and installing all the required software in a specific and repeatable way.
@@ -50,6 +51,14 @@ Here are the steps to get this done:
 * The play recap should be the last thing printed out, use this to verify everything went according to plan
 * Close the terminal or command prompt
 * Note that the virtual machine will re-size appropriately once you log in
+
+## Provisioning to Local Environment
+
+If you're deploying to an existing local environment, a simple script has been provided assuming that the environment is RHEL based called `deploy-local-env.sh`.
+This script will run ansible with the role of server, OS as REHL, and Ground set to NONE.
+The script can be edited manually to change these settings.
+Note that no new user will be created during this process as would typically be done when provisioning from scratch.
+Users are expected to be in the `domainusers` group to access shared source at `/opt/nos3`.
 
 ## Logging In
 
@@ -142,6 +151,16 @@ Things that should be checked include:
 * Remove personal SSH keys if they were added
 * Remove all shared folders
 * Ensure extended additions is not enabled / is not required
+
+## Creating a base box
+
+* Change your configuration as necessary
+* `vagrant up`
+* Wait until complete
+* Confirm no errors
+* `vagrant halt`
+* Remove or rename any previously generated `package.box` files in local directory
+* `vagrant package --base nos3_dev_1.5.1`
 
 ## Versioning
 
