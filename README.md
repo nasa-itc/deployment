@@ -5,10 +5,9 @@ Ansible scripts used to provision the NOS3 VM for development.
 ## Prerequisites
 
 Each of the applications listed below are required to continue:
-* [Git 2.24+](https://git-scm.com/)
-* [Vagrant 2.2.6+](https://www.vagrantup.com/)
-* [VirtualBox 6.0+](https://www.virtualbox.org/)
-  - It is also recommend that you install the extended additions of VirtualBox!
+* [Git 2.36+](https://git-scm.com/)
+* [Vagrant 2.3.4+](https://www.vagrantup.com/)
+* [VirtualBox 7.0+](https://www.virtualbox.org/)
 
 Older versions of the above software may still work, but were not used to verify the release.
 You will need to obtain administrator privileges on your machine in order to install these.
@@ -159,8 +158,9 @@ Things that should be checked include:
 * Wait until complete
 * Confirm no errors
 * `vagrant halt`
+* Remove all shared folders from box
 * Remove or rename any previously generated `package.box` files in local directory
-* `vagrant package --base nos3_dev_1.5.1`
+* `vagrant package --base nos3_dev_1.6.0`
 
 ## Versioning
 
