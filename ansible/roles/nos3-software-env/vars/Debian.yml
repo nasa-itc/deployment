@@ -40,6 +40,7 @@ packages_to_install:
   - bash-completion
   - dos2unix
   - gitk
+  - gnome-shell-extensions
   - gnome-tweaks
   - htop
   - libncurses5 
