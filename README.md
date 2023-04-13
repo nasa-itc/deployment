@@ -162,6 +162,11 @@ Things that should be checked include:
 * Remove or rename any previously generated `package.box` files in local directory
 * `vagrant package --base nos3_dev_1.6.0`
 
+## Docker
+
+* `docker build -t nos3 .`
+* `docker run -t -i -v /home/nos3/git:/git nos3 /bin/bash`
+
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the tags on this repository.

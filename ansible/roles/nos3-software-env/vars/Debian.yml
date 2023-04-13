@@ -39,6 +39,7 @@ packages_to_install:
   #
   - bash-completion
   - dos2unix
+  - gdb
   - gitk
   - gnome-shell-extensions
   - gnome-tweaks
