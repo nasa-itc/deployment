@@ -1,0 +1,16 @@
+packages_to_install:
+  - autoconf
+  - cmake
+  - g++-multilib
+  - gcc-multilib
+  - gettext
+  - git
+  - python-apt
+  - python3-dev
+  - python3-pip
+  - libgcrypt20-dev
+  - libgpg-error-dev
+  - libmariadb-dev
+  - libmariadb-dev-compat
+  - libcurl4-openssl-dev
+  - libtool
