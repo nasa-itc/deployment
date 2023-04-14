@@ -37,6 +37,84 @@
     state: latest
   tags: pycryptodome
 
+# Libgpg-error and Libgcrypt Builds
+- name: Libgpg-error and Libgcrypt for Debian
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  block:
+    - name: Clean libgpg-error path
+      file:
+        state: absent
+        path: /tmp/libgpg-error
+    - name: Git checkout libgpg-error
+      ansible.builtin.git:
+        repo: 'https://github.com/gpg/libgpg-error.git'
+        dest: /tmp/libgpg-error
+        version: libgpg-error-1.47
+    - name: libgpg-error Autogen
+      shell: |
+        cd /tmp/libgpg-error
+        ./autogen.sh
+    - name: Create a libgpg-error build directory
+      ansible.builtin.file:
+        path: /tmp/libgpg-error/build
+        state: directory
+        mode: '0755'
+    - name: libgpg-error build
+      shell: |
+        cd /tmp/libgpg-error/build
+        ../configure --disable-doc
+        make 
+        make install
+    - name: Clean libgcrypt path
+      file:
+        state: absent
+        path: /tmp/libgcrypt
+    - name: Git checkout libgcrypt
+      ansible.builtin.git:
+        repo: 'https://github.com/gpg/libgcrypt.git'
+        dest: /tmp/libgcrypt
+        version: libgcrypt-1.9.3
+    - name: libgcrypt Autogen
+      shell: |
+        cd /tmp/libgcrypt
+        ./autogen.sh
+    - name: Create a libgcrypt build directory
+      ansible.builtin.file:
+        path: /tmp/libgcrypt/build
+        state: directory
+        mode: '0755'
+    - name: libgcrypt build
+      shell: |
+        cd /tmp/libgcrypt/build
+        ../configure --disable-doc --disable-asm
+        make 
+        make install
+    - name: Create a libgpg-error build32 directory
+      ansible.builtin.file:
+        path: /tmp/libgpg-error/build32
+        state: directory
+        mode: '0755'
+    - name: libgpg-error 32-bit build
+      shell: |
+        cd /tmp/libgpg-error/build32
+        export CFLAGS="-m32"
+        ../configure --disable-doc
+        make 
+        make install
+    - name: Create a libgcrypt build32 directory
+      ansible.builtin.file:
+        path: /tmp/libgcrypt/build32
+        state: directory
+        mode: '0755'
+    - name: libgcrypt 32-bit build
+      shell: |
+        cd /tmp/libgcrypt/build32
+        export CFLAGS="-m32"
+        ../configure --disable-doc --disable-asm
+        make 
+        make install
+
 # WolfSSL Builds
 - name: WolfSSL
   become: yes
@@ -65,6 +143,7 @@
         ../configure
         make 
         make install
+        make test
     - name: Create a wolfssl build32 directory
       ansible.builtin.file:
         path: /tmp/wolfssl/build32
@@ -77,15 +156,4 @@
         ../configure
         make 
         make install
-
-# CryptoLib 32-bit Packages
-- name: Install CryptoLib 32-bit dependencies for Debian
-  become: yes
-  when: ansible_facts['os_family'] == "Debian"
-  block:
-    - name: Download debian files
-      command: apt-get download libgcrypt20-dev:i386 libgpg-error-dev:i386
-      args:
-        chdir: /tmp/
-    - name: Force install 32-bit debian files
-      command: dpkg --force-all -i /tmp/libgcrypt20-dev_1.8.5-5ubuntu1.1_i386.deb /tmp/libgpg-error-dev_1.37-1_i386.deb
+        make test

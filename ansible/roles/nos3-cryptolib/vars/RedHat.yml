@@ -18,11 +18,13 @@ packages_to_install:
   - libstdc++-devel
   - libgcrypt-devel
   - libgpg-error-devel
-  - mariadb-devel
+  - mariadb-connector-c-devel
   - python39-devel
   - python39-setuptools
   - python3-pip
   - libcurl-devel
+  # 32-bit packages
   - libstdc++.i686
   - glibc-devel.i686
   - libgcrypt-devel.i686
+  - mariadb-connector-c-devel.i686
