@@ -12,3 +12,5 @@ packages_to_install:
   - libmariadb-dev-compat
   - libcurl4-openssl-dev
   - libtool
+  # 32-bit packages
+  - libgcrypt20-dev:i386
