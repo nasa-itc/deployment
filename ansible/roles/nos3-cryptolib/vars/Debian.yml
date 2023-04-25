@@ -1,0 +1,16 @@
+packages_to_install:
+  - autoconf
+  - cmake
+  - g++-multilib
+  - gcc-multilib
+  - gettext
+  - git
+  - python-apt
+  - python3-dev
+  - python3-pip
+  - libmariadb-dev
+  - libmariadb-dev-compat
+  - libcurl4-openssl-dev
+  - libtool
+  # 32-bit packages
+  - libgcrypt20-dev:i386
