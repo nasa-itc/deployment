@@ -44,7 +44,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
-        vbox.cpus = 2
+        vbox.cpus = 4
         vbox.memory = "4096"
         vbox.customize ["modifyvm", :id, "--vram", 128]
         vbox.customize ["showvminfo", :id]
