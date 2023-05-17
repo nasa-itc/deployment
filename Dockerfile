@@ -32,6 +32,7 @@ RUN apt-get update -y \
         libgtest-dev \
         libicu-dev:i386 \
         libncurses5-dev \
+        libreadline-dev:i386 \
         libsocketcan-dev \
         libxerces-c-dev \
         wget \
