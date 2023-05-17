@@ -20,6 +20,13 @@ git submodule add -f -b main https://github.com/nasa-itc/generic_reaction_wheel.
 git submodule add -f -b main https://github.com/nasa-itc/novatel_oem615.git ./components/novatel_oem615
 git submodule add -f -b main https://github.com/nasa-itc/sample.git ./components/sample
 git submodule add -f -b main https://github.com/nasa-itc/component_template.git ./components/template
+git submodule add -f -b main https://github.com/nasa-itc/generic_torquer.git ./components/generic_torquer
+git submodule add -f -b main https://github.com/nasa-itc/generic_magnetometer.git ./components/generic_magnetometer
+git submodule add -f -b main https://github.com/nasa-itc/generic_imu.git ./components/generic_imu
+git submodule add -f -b main https://github.com/nasa-itc/generic_radio.git ./components/generic_radio
+git submodule add -f -b main https://github.com/nasa-itc/generic_eps.git ./components/generic_eps
+git submodule add -f -b main https://github.com/nasa-itc/generic_css.git ./components/generic_css
+git submodule add -f -b main https://github.com/nasa-itc/generic_fss.git ./components/generic_fss
 
 
 ###
