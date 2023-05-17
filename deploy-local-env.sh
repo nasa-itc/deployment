@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Bootstrap the SmallSats environment on a given host and update with
+# Bootstrap the environment on a given host and update with
 # that latest configuration.
 #
 # see usage() below for script usage
@@ -37,14 +37,14 @@ function usage
 
 Usage: deploy-local-env.sh [ansible command line args]
 
-This script sets up the SmallSats server environment on a non Vagrant managed host.
+This script sets up the environment on a non Vagrant managed host.
 This script performs the following functions:
 
 1) Installs pip (if missing)
 2) Installs ansible (if missing or wrong version)
 3) Sets up a symlink in the root directory to allow the playbooks to access the
    filestore in the same manner as they do in the VM
-4) Configure the host as a SmallSats server using Ansible
+4) Configure the host using Ansible
 
 This scripts will pass any arguments directly to the ansible-playbook command
 EOF
@@ -58,6 +58,12 @@ exit 1
 
 # Version of Ansible to install
 REQ_ANSIBLE_VER="2.9.13"
+
+if [ -f "/etc/debian_version" ]; then
+    EXTRA_VARS="OS=ubuntu GROUND=NONE"
+else
+    EXTRA_VARS="OS=rocky GROUND=NONE"
+fi
 
 ################################################################################
 # PROCESS OPTIONS
@@ -137,5 +143,5 @@ ANSIBLE_CALLBACK_WHITELIST=profile_tasks \
 ansible-playbook ansible/server.yml \
     --ask-become-pass \
     -i ansible/hosts.txt \
-    --extra-vars "GROUND=NONE" \
+    --extra-vars "$EXTRA_VARS" \
     "$@" # we allow passtrough arguments from this script to ansible-playbook command

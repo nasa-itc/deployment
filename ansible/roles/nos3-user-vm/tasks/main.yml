@@ -76,3 +76,42 @@
     when: ansible_facts['os_family'] == "Debian"
     package:
       name: "linux-headers-{{ ansible_kernel }}"
+
+# Bring back nice to haves in Gnome
+- name: GNOME Nice to haves
+  tags: gnome-nice-to-haves
+  block:
+  - name: Download get-pip.py for Rocky
+    when: (OS == "rocky")
+    ansible.builtin.get_url:
+      url: https://bootstrap.pypa.io/pip/3.6/get-pip.py # Hardcoded 3.6
+      dest: /tmp/get-pip.py
+      mode: '0440'
+  - name: Download get-pip.py for Oracle or Ubuntu
+    when: (OS == "oracle") or (OS == "ubuntu")
+    ansible.builtin.get_url:
+      url: https://bootstrap.pypa.io/get-pip.py
+      dest: /tmp/get-pip.py
+      mode: '0440'
+  - name: Execute pip install script for the ansible python version
+    become: true
+    script: /tmp/get-pip.py
+    args:
+      executable: "{{ ansible_python.executable }}"
+  - name: PIP install psutil
+    become: true
+    command: "{{ ansible_python.executable }} -m pip install psutil"
+  - name: GNOME Preferences (Minimize, maximize, close buttons)
+    become: true
+    become_user: nos3
+    community.general.dconf:
+      key: "/org/gnome/desktop/wm/preferences/button-layout"
+      value: "':minimize,maximize,close'"
+      state: present    
+  - name: GNOME Preferences (Window list)
+    become: true
+    become_user: nos3
+    dconf:
+      key: "/org/gnome/shell/enabled-extensions"
+      value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
+      state: present
