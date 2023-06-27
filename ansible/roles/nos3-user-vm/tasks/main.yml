@@ -8,7 +8,7 @@
   become: yes
   user:
     name: nos3
-    groups: domainusers, dialout, vagrant, vboxsf, root
+    groups: domainusers, dialout, vagrant, vboxsf, root, docker
   tags: base
   # Note: group root needed to find necessary library files to build
 

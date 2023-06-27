@@ -15,7 +15,7 @@
     name: nos3
     password: $6$.mG1a/zL$f1LcckhnvYRUxQZrGeWVBh.nNAJu9qNIX9v1zvivsc67SjqGapbXNFS4e2/uInkqSas64WwmBRJ45uqSB.nSZ1
     group: domainusers
-    groups: domainusers, dialout
+    groups: domainusers, dialout, docker
     shell: /bin/bash
   tags: base
 

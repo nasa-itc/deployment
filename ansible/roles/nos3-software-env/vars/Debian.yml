@@ -54,3 +54,9 @@ packages_to_install:
   # Buildroot
   #
   - dropbear-bin
+  #
+  # Docker
+  #
+  - docker.io
+  - docker-compose
+  - python3-docker
