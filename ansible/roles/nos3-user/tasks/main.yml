@@ -9,6 +9,12 @@
     name: domainusers
   tags: base
 
+- name: Create docker group
+  become: yes
+  group:
+    name: docker
+  tags: base
+
 - name:  Create nos3 user and add nos3 groups
   become: yes
   user:
