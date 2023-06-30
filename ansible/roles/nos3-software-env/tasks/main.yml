@@ -445,11 +445,8 @@
 - name: Have podman use crun instread of runc
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  #lineinfile:
-  #  path: /usr/share/containers/containers.conf
-  #  create: yes
-  #  regexp: 'runtime = "runc"'
-  #  line: 'runtime = "crun" # "runc"'
-  shell: 
-    cmd: |
-      sed -i 's/runtime = "runc"/runtime = "crun" # "runc"/g' /usr/share/containers/containers.conf"
+  lineinfile:
+    path: /usr/share/containers/containers.conf
+    create: yes
+    regexp: 'runtime = "runc"'
+    line: 'runtime = "crun" # "runc"'
