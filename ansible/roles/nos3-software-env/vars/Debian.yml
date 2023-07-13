@@ -34,6 +34,10 @@ packages_to_install:
   - libsocketcan-dev
   - libxerces-c-dev
   - minicom
+  - docker
+  - docker.io
+  - docker-compose
+  - firefox
   #
   # Quality of Life
   #
