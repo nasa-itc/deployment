@@ -50,3 +50,10 @@ packages_to_install:
   - bison
   - dropbear
   - perl-ExtUtils-MakeMaker
+  #
+  # Docker
+  #
+  - crun
+  - podman-docker
+  - podman-plugins
+  - python3-docker

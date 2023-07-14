@@ -3,13 +3,19 @@
 - name: Install Desktop Environment
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  command: yum group install 'Server with GUI' -y
-  args:
-    warn: false
-- name: Default to graphics
-  become: yes
-  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  command: systemctl set-default graphical
+  block:
+    - name: Install the 'Development tools' package group
+      ansible.builtin.yum:
+        name: "@Development tools"
+        state: present
+    - name: Install the 'Gnome desktop' environment group
+      ansible.builtin.yum:
+        name: "@Server with GUI"
+        state: present
+    - name: Default to graphics
+      become: yes
+      when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+      command: systemctl set-default graphical
 
 ##### O/S packages, environment, NOS3 branding, etc. #####
 - name: Include OS specific variables
@@ -49,12 +55,14 @@
   command: yum config-manager --set-enabled powertools  
   args:
     warn: false
+- name: Add powertools repository for yum
+  become: yes
+  when: (OS == "rocky")
+  command: dnf config-manager --set-enabled powertools
 - name: Add ol8_codeready_builder repository for yum
   become: yes
-  when: (OS == "oracle")
-  command: yum config-manager --set-enabled ol8_codeready_builder  
-  args:
-    warn: false
+  when: (OS == "oracle")  
+  command: dnf config-manager --set-enabled ol8_codeready_builder
 - name: Update yum package cache
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
@@ -434,3 +442,13 @@
     line: '*                hard    rtprio            99'
   tags: base
 # No special crash reporting/debugging config on RHEL (yet)
+
+# RHEL podman use crun
+- name: Have podman use crun instread of runc
+  become: yes
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  lineinfile:
+    path: /usr/share/containers/containers.conf
+    create: yes
+    regexp: 'runtime = "runc"'
+    line: 'runtime = "crun" # "runc"'

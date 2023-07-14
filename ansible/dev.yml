@@ -13,6 +13,8 @@
       rvm1_ruby_install_flags: '--disable-dtrace'
       rvm1_bundler_install: False
       rvm1_user: 'nos3'
+      rvm1_rvm_latest_installer: 'https://raw.githubusercontent.com/rvm/rvm/stable/binscripts/rvm-installer'
+      rvm1_rvm_version: 'stable'
     - role: nos3-ground # COSMOS and/or AIT 
     - role: nos3-42 # 42
     - role: nos3-cryptolib # CryptoLib
