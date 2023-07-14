@@ -55,12 +55,14 @@
   command: yum config-manager --set-enabled powertools  
   args:
     warn: false
+- name: Add powertools repository for yum
+  become: yes
+  when: (OS == "rocky")
+  command: dnf config-manager --set-enabled powertools
 - name: Add ol8_codeready_builder repository for yum
   become: yes
-  when: (OS == "oracle")
-  command: yum config-manager --set-enabled ol8_codeready_builder  
-  args:
-    warn: false
+  when: (OS == "oracle")  
+  command: dnf config-manager --set-enabled ol8_codeready_builder
 - name: Update yum package cache
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")

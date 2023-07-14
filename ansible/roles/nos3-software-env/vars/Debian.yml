@@ -41,6 +41,7 @@ packages_to_install:
   - dos2unix
   - gdb
   - gitk
+  - gnome-shell-extension-desktop-icons
   - gnome-shell-extensions
   - gnome-tweaks
   - htop
