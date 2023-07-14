@@ -45,6 +45,7 @@ packages_to_install:
   - dos2unix
   - gdb
   - gitk
+  - gnome-shell-extension-desktop-icons
   - gnome-shell-extensions
   - gnome-tweaks
   - htop
@@ -58,3 +59,9 @@ packages_to_install:
   # Buildroot
   #
   - dropbear-bin
+  #
+  # Docker
+  #
+  - docker.io
+  - docker-compose
+  - python3-docker

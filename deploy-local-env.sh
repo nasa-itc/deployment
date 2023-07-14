@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Bootstrap the SmallSats environment on a given host and update with
+# Bootstrap the environment on a given host and update with
 # that latest configuration.
 #
 # see usage() below for script usage
@@ -37,14 +37,14 @@ function usage
 
 Usage: deploy-local-env.sh [ansible command line args]
 
-This script sets up the SmallSats server environment on a non Vagrant managed host.
+This script sets up the environment on a non Vagrant managed host.
 This script performs the following functions:
 
 1) Installs pip (if missing)
 2) Installs ansible (if missing or wrong version)
 3) Sets up a symlink in the root directory to allow the playbooks to access the
    filestore in the same manner as they do in the VM
-4) Configure the host as a SmallSats server using Ansible
+4) Configure the host using Ansible
 
 This scripts will pass any arguments directly to the ansible-playbook command
 EOF
@@ -97,19 +97,34 @@ REQ_ANSIBLE_VER="2.9.13"
 
 ss_announce "Installing Dependencies"
 
-which pip >/dev/null 2>&1
-PIP_INSTALLED=$?
+if [ -f "/etc/debian_version" ]; then
+    EXTRA_VARS="OS=ubuntu GROUND=NONE"
+    which pip >/dev/null 2>&1
+    PIP_INSTALLED=$?
 
-if [[ $PIP_INSTALLED -eq 0 ]]; then
-    ss_status "pip already installed"
+    if [[ $PIP_INSTALLED -eq 0 ]]; then
+    	ss_status "pip already installed"
+    else
+    	sudo apt install -y python3-pip 
+    	sudo pip3 install --upgrade pip
+    	sudo pip3 install markupsafe typing ansible==2.9.13
+    fi
 else
-    # Add repository that hosts package
-    ss_status "Installing pip"
-    sudo yum install -y epel-release
-    sudo yum -y update
-    sudo yum install -y python3-pip
-    sudo pip3 install --upgrade 'pip<21.0'
-    sudo pip3 install markupsafe typing ansible==2.9.13
+    EXTRA_VARS="OS=rocky GROUND=NONE"
+    which pip >/dev/null 2>&1
+    PIP_INSTALLED=$?
+
+    if [[ $PIP_INSTALLED -eq 0 ]]; then
+        ss_status "pip already installed"
+    else
+        # Add repository that hosts package
+        ss_status "Installing pip"
+        sudo yum install -y epel-release
+        sudo yum -y update
+        sudo yum install -y python3-pip
+        sudo pip3 install --upgrade 'pip<21.0'
+        sudo pip3 install markupsafe typing ansible==2.9.13
+    fi
 fi
 
 ####################
@@ -137,5 +152,5 @@ ANSIBLE_CALLBACK_WHITELIST=profile_tasks \
 ansible-playbook ansible/server.yml \
     --ask-become-pass \
     -i ansible/hosts.txt \
-    --extra-vars "GROUND=NONE" \
+    --extra-vars "$EXTRA_VARS" \
     "$@" # we allow passtrough arguments from this script to ansible-playbook command

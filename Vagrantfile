@@ -10,10 +10,6 @@ end
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
-version_info = IO.readlines("VERSION")
-nos3_version = version_info.grep(/^\s*NOS3\s*=/i)[0].split("=")[1].strip
-nos3_version = /(\d+\.?)+/.match(nos3_version).to_s
-
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
 OS = cp.get_string_in_list("OS", ["ubuntu", "oracle", "rocky"], "ubuntu")
@@ -22,17 +18,17 @@ GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COS
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
     config.vm.box = "bento/ubuntu-20.04"
-    config.vm.box_version = "202212.11.0"
+    config.vm.box_version = "202303.13.0"
     
     # Was another OS was selected?
-    if (OS == "oracle")
-        config.vm.box = "bento/oracle-8.5"
-        config.vm.box_version = "202112.19.0"
-    end
+    #if (OS == "oracle")
+    #    config.vm.box = "bento/oracle-8"
+    #    config.vm.box_version = "202305.24.0"
+    #end
     
     if (OS == "rocky")
-        config.vm.box = "bento/rockylinux-8.7"
-        config.vm.box_version = "202212.11.0"
+        config.vm.box = "bento/rockylinux-8"
+        config.vm.box_version = "202305.24.0"
     end
 
     # Configure machine
@@ -74,7 +70,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
         config.vm.define machine, primary: is_primary, autostart: is_primary do |nos3|
             nos3.vm.provider "virtualbox" do |vbox|
-                vbox.name = "nos3_#{machine}_#{nos3_version}"
+                vbox.name = "nos3_#{OS}_dev"
             end
 
             nos3.vm.provision "ansible_local" do |ansible|
