@@ -59,6 +59,16 @@
   become: yes
   when: (OS == "rocky")
   command: dnf config-manager --set-enabled powertools
+- name: Add docker repository for yum
+  become: yes
+  when: (OS == "rocky")
+  command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+- name: Remove runc to avoid conflicts with docker
+  become: yes
+  when: (OS == "rocky")
+  ansible.builtin.yum:
+    name: runc
+    state: absent
 - name: Add ol8_codeready_builder repository for yum
   become: yes
   when: (OS == "oracle")  
@@ -274,6 +284,16 @@
   yum:
       name: code
 
+# RHEL Docker Setup
+- name: RHEL docker start and enable
+  become: yes
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  block:
+    - name: RHEL Start docker
+      command: systemctl start docker
+    - name: RHEL enable docker start across reboots
+      command: systemctl enable docker
+
 ##### Install ITC common and NOS engine #####
 - name: Install ITC common on Ubuntu
   become: yes
@@ -444,11 +464,11 @@
 # No special crash reporting/debugging config on RHEL (yet)
 
 # RHEL podman use crun
-- name: Have podman use crun instread of runc
-  become: yes
-  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  lineinfile:
-    path: /usr/share/containers/containers.conf
-    create: yes
-    regexp: 'runtime = "runc"'
-    line: 'runtime = "crun" # "runc"'
+#- name: Have podman use crun instread of runc
+#  become: yes
+#  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+#  lineinfile:
+#    path: /usr/share/containers/containers.conf
+#    create: yes
+#    regexp: 'runtime = "runc"'
+#    line: 'runtime = "crun" # "runc"'

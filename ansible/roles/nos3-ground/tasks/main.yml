@@ -133,6 +133,10 @@
       command: sed -i -e 's$    \#  - "127.0.0.1:7779:7779" \# Open port for the demo router$      - "127.0.0.1:5111:5111/udp"\n      - "127.0.0.1:5013:5013/udp"$; s$    \#   - "127.0.0.1:9000:9000$       - "127.0.0.1:9000:9000$; s$^    \# ports:$    ports:$' compose.yaml
       args:
         chdir: /opt/nos3/cosmos
+    - name: Disable demo
+      command: sed -i -e 's\OPENC3_DEMO=1\#OPENC3_DEMO=1\g' .env
+      args:
+        chdir: /opt/nos3/cosmos
     - name: Start OpenC3
       command: ./openc3.sh start
       args:
