@@ -33,6 +33,7 @@
     state: directory
     owner: nos3
     group: domainusers
+  tags: base
 
 # Edit permissions for /opt/nos3
 - name: Change /opt/nos3 directory permissions
@@ -40,6 +41,7 @@
   file:
     path: /opt/nos3
     mode: '777'
+  tags: base
 
 # Configure nos3 permissions, env, etc.
 - name: Set nos3 as owner of home directory

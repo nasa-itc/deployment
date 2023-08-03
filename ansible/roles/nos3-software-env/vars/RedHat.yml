@@ -53,7 +53,12 @@ packages_to_install:
   #
   # Docker
   #
-  - crun
-  - podman-docker
-  - podman-plugins
+  #- crun
+  - containerd.io
+  - docker-ce
+  - docker-ce-cli
+  - docker-compose-plugin
+  #- podman-docker
+  #- podman-compose
+  #- podman-plugins
   - python3-docker

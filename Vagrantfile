@@ -85,6 +85,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
                 ansible.galaxy_role_file = "ansible/requirements.yml"
+                #ansible.tags="OpenC3"
                 #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag
                 #ansible.verbose = "vvv" # set to "true" or "vvv" or "vvvv" for debugging
             end
