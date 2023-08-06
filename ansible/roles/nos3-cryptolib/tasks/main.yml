@@ -1,28 +1,34 @@
 ---
-# CryptoLib Package Depenencies
-- name: Install CryptoLib dependencies for Debian
+- name: Prepare CryptoLib dependencies for Debian
   become: yes
   when: ansible_facts['os_family'] == "Debian"
-  apt:
-    name:
-      - libgcrypt20-dev
-      - libgpg-error-dev
-      - libmariadb-dev
-      - libmariadb-dev-compat
-      - libcurl4-openssl-dev
-- name: Install CryptoLib dependencies for RedHat
+  block:
+    - name: Enable i386 architecture
+      command: dpkg --add-architecture i386
+    - name: Update apt package cache
+      apt: update_cache=yes
+      tags: base
+    - name: Include OS specific variables Debian
+      include_vars:
+        file: "Debian.yml"
+        name: cryptovars
+      tags: base
+- name: Prepare CryptoLib dependencies for RedHat
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  yum:
-    name:
-      - libgcrypt-devel
-      - libgpg-error-devel
-      - mariadb-devel
-      - python39-devel
-      - python39-setuptools
-      - libcurl-devel
-      - libgcrypt-devel.i686
-      
+  block:
+    - name: Include OS specific variables RedHat / Rocky
+      include_vars:
+        file: "RedHat.yml"
+        name: cryptovars
+      tags: base
+- name: Install CryptoLib dependencies
+  become: yes
+  package:
+    state: latest
+    name: "{{ cryptovars.packages_to_install }}"
+  tags: base
+
 # CryptoLib PIP3 Depenencies
 - name: PIP install pycryptodome
   become: yes
@@ -30,3 +36,124 @@
     name: pycryptodome
     state: latest
   tags: pycryptodome
+
+# Libgpg-error and Libgcrypt Builds
+#- name: Libgpg-error and Libgcrypt for Debian
+#  become: yes
+#  when: ansible_facts['os_family'] == "Debian"
+#  block:
+#    - name: Clean libgpg-error path
+#      file:
+#        state: absent
+#        path: /tmp/libgpg-error
+#    - name: Git checkout libgpg-error
+#      ansible.builtin.git:
+#        repo: 'https://github.com/gpg/libgpg-error.git'
+#        dest: /tmp/libgpg-error
+#        version: libgpg-error-1.47
+#    - name: libgpg-error Autogen
+#      shell: |
+#        cd /tmp/libgpg-error
+#        ./autogen.sh
+#    - name: Create a libgpg-error build directory
+#      ansible.builtin.file:
+#        path: /tmp/libgpg-error/build
+#        state: directory
+#        mode: '0755'
+#    - name: libgpg-error build
+#      shell: |
+#        cd /tmp/libgpg-error/build
+#        ../configure --disable-doc
+#        make 
+#        make install
+#    - name: Clean libgcrypt path
+#      file:
+#        state: absent
+#        path: /tmp/libgcrypt
+#    - name: Git checkout libgcrypt
+#      ansible.builtin.git:
+#        repo: 'https://github.com/gpg/libgcrypt.git'
+#        dest: /tmp/libgcrypt
+#        version: libgcrypt-1.9.3
+#    - name: libgcrypt Autogen
+#      shell: |
+#        cd /tmp/libgcrypt
+#        ./autogen.sh
+#    - name: Create a libgcrypt build directory
+#      ansible.builtin.file:
+#        path: /tmp/libgcrypt/build
+#        state: directory
+#        mode: '0755'
+#    - name: libgcrypt build
+#      shell: |
+#        cd /tmp/libgcrypt/build
+#        ../configure --disable-doc --disable-asm
+#        make 
+#        make install
+#    - name: Create a libgpg-error build32 directory
+#      ansible.builtin.file:
+#        path: /tmp/libgpg-error/build32
+#        state: directory
+#        mode: '0755'
+#    - name: libgpg-error 32-bit build
+#      shell: |
+#        cd /tmp/libgpg-error/build32
+#        export CFLAGS="-m32"
+#        ../configure --disable-doc
+#        make 
+#        make install
+#    - name: Create a libgcrypt build32 directory
+#      ansible.builtin.file:
+#        path: /tmp/libgcrypt/build32
+#        state: directory
+#        mode: '0755'
+#    - name: libgcrypt 32-bit build
+#      shell: |
+#        cd /tmp/libgcrypt/build32
+#        export CFLAGS="-m32"
+#        ../configure --disable-doc --disable-asm
+#        make 
+#        make install
+
+# WolfSSL Builds
+- name: WolfSSL
+  become: yes
+  block:
+    - name: Clean wolfssl path
+      file:
+        state: absent
+        path: /tmp/wolfssl
+    - name: Git checkout wolfssl
+      ansible.builtin.git:
+        repo: 'https://github.com/wolfSSL/wolfssl.git'
+        dest: /tmp/wolfssl
+        version: v5.6.0-stable
+    - name: WolfSSL Autogen
+      shell: |
+        cd /tmp/wolfssl
+        ./autogen.sh
+    - name: Create a wolfssl build directory
+      ansible.builtin.file:
+        path: /tmp/wolfssl/build
+        state: directory
+        mode: '0755'
+    - name: WolfSSL build
+      shell: |
+        cd /tmp/wolfssl/build
+        ../configure
+        make 
+        make install
+        make test
+    - name: Create a wolfssl build32 directory
+      ansible.builtin.file:
+        path: /tmp/wolfssl/build32
+        state: directory
+        mode: '0755'
+    - name: WolfSSL 32-bit build
+      shell: |
+        cd /tmp/wolfssl/build32
+        export CFLAGS="-m32"
+        ../configure
+        make 
+        make install
+        make test

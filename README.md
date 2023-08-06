@@ -19,7 +19,6 @@ The configuration file must manually be edited prior to provisioning.
 This file can be found at the top level of this repository and is called `CONFIG`.
 Let's walk through your options:
 * Operating System (OS)
-  - `oracle` is a distribution based on RHEL (Red Hat Enterprise Linux)
   - `rocky` is a distribution based on RHEL
   - `ubuntu` is a distribution of Debian GNU/Linux
 * Ground Software (GROUND)
@@ -160,7 +159,12 @@ Things that should be checked include:
 * `vagrant halt`
 * Remove all shared folders from box
 * Remove or rename any previously generated `package.box` files in local directory
-* `vagrant package --base nos3_dev_1.6.0`
+* `vagrant package --output nos3_dev_YYMMDD.box`
+
+## Docker
+
+* `docker build -t nos3 .`
+* `docker run -t -i -v /home/nos3/git:/git nos3 /bin/bash`
 
 ## Versioning
 

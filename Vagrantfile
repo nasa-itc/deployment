@@ -10,10 +10,6 @@ end
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
-version_info = IO.readlines("VERSION")
-nos3_version = version_info.grep(/^\s*NOS3\s*=/i)[0].split("=")[1].strip
-nos3_version = /(\d+\.?)+/.match(nos3_version).to_s
-
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
 OS = cp.get_string_in_list("OS", ["ubuntu", "oracle", "rocky"], "ubuntu")
@@ -22,17 +18,17 @@ GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COS
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
     config.vm.box = "bento/ubuntu-20.04"
-    config.vm.box_version = "202212.11.0"
+    config.vm.box_version = "202303.13.0"
     
     # Was another OS was selected?
-    if (OS == "oracle")
-        config.vm.box = "bento/oracle-8.5"
-        config.vm.box_version = "202112.19.0"
-    end
+    #if (OS == "oracle")
+    #    config.vm.box = "bento/oracle-8"
+    #    config.vm.box_version = "202305.24.0"
+    #end
     
     if (OS == "rocky")
-        config.vm.box = "bento/rockylinux-8.7"
-        config.vm.box_version = "202212.11.0"
+        config.vm.box = "bento/rockylinux-8"
+        config.vm.box_version = "202305.24.0"
     end
 
     # Configure machine
@@ -44,7 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
-        vbox.cpus = 2
+        vbox.cpus = 4
         vbox.memory = "4096"
         vbox.customize ["modifyvm", :id, "--vram", 128]
         vbox.customize ["showvminfo", :id]
@@ -74,7 +70,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
         config.vm.define machine, primary: is_primary, autostart: is_primary do |nos3|
             nos3.vm.provider "virtualbox" do |vbox|
-                vbox.name = "nos3_#{machine}_#{nos3_version}"
+                vbox.name = "nos3_#{OS}_dev"
             end
 
             nos3.vm.provision "ansible_local" do |ansible|
@@ -89,6 +85,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
                 ansible.galaxy_role_file = "ansible/requirements.yml"
+                #ansible.tags="OpenC3"
                 #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag
                 #ansible.verbose = "vvv" # set to "true" or "vvv" or "vvvv" for debugging
             end

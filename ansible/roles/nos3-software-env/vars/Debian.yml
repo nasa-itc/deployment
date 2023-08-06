@@ -34,12 +34,15 @@ packages_to_install:
   - libsocketcan-dev
   - libxerces-c-dev
   - minicom
+  - firefox
   #
   # Quality of Life
   #
   - bash-completion
   - dos2unix
+  - gdb
   - gitk
+  - gnome-shell-extension-desktop-icons
   - gnome-shell-extensions
   - gnome-tweaks
   - htop
@@ -53,3 +56,10 @@ packages_to_install:
   # Buildroot
   #
   - dropbear-bin
+  #
+  # Docker
+  #
+  - docker
+  - docker.io
+  - docker-compose
+  - python3-docker

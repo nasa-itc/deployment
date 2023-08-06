@@ -50,3 +50,15 @@ packages_to_install:
   - bison
   - dropbear
   - perl-ExtUtils-MakeMaker
+  #
+  # Docker
+  #
+  #- crun
+  - containerd.io
+  - docker-ce
+  - docker-ce-cli
+  - docker-compose-plugin
+  #- podman-docker
+  #- podman-compose
+  #- podman-plugins
+  - python3-docker
