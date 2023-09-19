@@ -1,9 +1,12 @@
 # NOS3 Ubuntu Dockerfile
 #
-# docker build -t nos3 .
-# docker run -it -v /home/nos3/Desktop/github-nos3:/git nos3 /bin/bash
+# https://github.com/nasa-itc/deployment
+#
+# docker build -t ivvitc/nos3:latest .
+# docker run -it ivvitc/nos3 /bin/bash
+# docker push ivvitc/nos3:latest
 
-FROM ubuntu:20.04 AS nos1
+FROM ubuntu:focal-20230801 AS nos1
 
 # Enable i386 architecture
 RUN dpkg --add-architecture i386
@@ -68,3 +71,6 @@ RUN cd /opt/nos3/42 \
     && make \
     && ln -s /usr/lib/libnos_engine_client.so /usr/lib/libnos_engine_client_cxx11.so
 
+# Enable access for all to /opt and /usr files
+FROM nos3 AS nos4
+RUN chmod -R 777 /opt /usr
