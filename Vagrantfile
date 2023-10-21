@@ -21,11 +21,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box_version = "202303.13.0"
     
     # Was another OS was selected?
-    #if (OS == "oracle")
-    #    config.vm.box = "bento/oracle-8"
-    #    config.vm.box_version = "202305.24.0"
-    #end
-    
     if (OS == "rocky")
         config.vm.box = "bento/rockylinux-8"
         config.vm.box_version = "202305.24.0"
@@ -41,16 +36,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
         vbox.cpus = 4
-        vbox.memory = "4096"
+        vbox.memory = "8192"
+        vbox.customize ["modifyvm", :id, "--paravirtprovider", "minimal"]
+        vbox.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
         vbox.customize ["modifyvm", :id, "--vram", 128]
-        vbox.customize ["showvminfo", :id]
         vbox.customize ["storageattach", :id,  "--storagectl", "IDE Controller", "--port", 1, "--device", 0, "--type", "dvddrive", "--medium", "emptydrive"]
-        vbox.customize ["modifyvm", :id, "--hwvirtex", "on"]
-        vbox.customize ["modifyvm", :id, "--ioapic", "on"]
-        vbox.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
-        # Speed up ruby gem installs
-        vbox.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
-        vbox.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
         # Connect network
         vbox.customize ["modifyvm", :id, "--cableconnected1", "on"]
         # Bi-directional clipboard
@@ -62,15 +52,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # So you may need to vagrant up one or several of these to get all the machines you need for your environment
     machine_playbooks = {
         "base": "base.yml",
-        "dev": "dev.yml",
     }
 
     machine_playbooks.each do |machine, playbook|
-        is_primary = (machine.to_s == "dev")
+        is_primary = (machine.to_s == "base")
 
         config.vm.define machine, primary: is_primary, autostart: is_primary do |nos3|
             nos3.vm.provider "virtualbox" do |vbox|
-                vbox.name = "nos3_#{OS}_dev"
+                vbox.name = "nos3_#{OS}"
             end
 
             nos3.vm.provision "ansible_local" do |ansible|
@@ -84,8 +73,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                     GROUND: "#{GROUND}",
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
-                ansible.galaxy_role_file = "ansible/requirements.yml"
-                #ansible.tags="OpenC3"
                 #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag
                 #ansible.verbose = "vvv" # set to "true" or "vvv" or "vvvv" for debugging
             end
