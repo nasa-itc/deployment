@@ -21,16 +21,10 @@ Let's walk through your options:
 * Operating System (OS)
   - `rocky` is a distribution based on RHEL
   - `ubuntu` is a distribution of Debian GNU/Linux
-* Ground Software (GROUND)
-  - `ait` is a Python-based software suite developed to handle ground data system, electronic ground support equipment, commanding, telemetry uplink/downlink, and sequencing for JPL International Space Station and CubeSat Missions
-  - `cosmos`  is an operations and test system developed by Ball Aerospace that provides all the functionality needed to command and control any system from a complete satellite to an individual board
-  - `both` installs both of the above configurations
-  - `none` simply skips provisioning any ground station software
-* Developer Role (ROLE)
+* Role (ROLE)
   - `base` is simply the base box with no specific software installed
-  - `dev` is the standard deployment which includes cross compilers necessary for standard development
 
-The default configuration is currently set up as: `ubuntu`, `cosmos`, `dev`.
+The default configuration is currently set up as: `ubuntu` and `base`.
 
 ## Provisioning from Scratch
 
@@ -38,7 +32,7 @@ Once you've selected your desired configuration, you're ready to provision your 
 This essentially means downloading and installing all the required software in a specific and repeatable way.
 Here are the steps to get this done:
 * Use git to clone this repository (if you haven't already)
-  - `git clone https://github.com/nasa/nos3.git`
+  - `git clone https://github.com/nasa-itc/deployment.git`
 * Open a terminal or command prompt
 * Navigate to the deployment folder in the repository that is now local your machine
 * Run Vagrant
@@ -53,8 +47,8 @@ Here are the steps to get this done:
 ## Provisioning to Local Environment
 
 If you're deploying to an existing local environment, a simple script has been provided assuming that the environment is RHEL based called `deploy-local-env.sh`.
-This script will run ansible with the role of server, OS as REHL, and Ground set to NONE.
-The script can be edited manually to change these settings.
+This script will run ansible for you.
+The script can be edited manually to change settings as needed.
 Note that no new user will be created during this process as would typically be done when provisioning from scratch.
 Users are expected to be in the `domainusers` group to access shared source at `/opt/nos3`.
 

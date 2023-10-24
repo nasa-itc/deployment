@@ -115,3 +115,63 @@
       key: "/org/gnome/shell/enabled-extensions"
       value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
       state: present
+  - name: Disable idle delay
+    dconf:
+      key: "/org/gnome/desktop/session/idle-delay"
+      value: 'uint32 0'
+      state: present
+  - name: Disable idle activation
+    dconf:
+      key: "/org/gnome/desktop/screensaver/idle-activation-enabled"
+      value: "'false'"
+      state: present
+  - name: Disable lock
+    dconf:
+      key: "/org/gnome/desktop/screensaver/lock-enabled"
+      value: "'false'"
+      state: present
+  - name: Favorites
+    dconf:
+      key: "/org/gnome/shell/favorite-apps"
+      value: "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']"
+      state: present
+  - name: Ignore new release
+    dconf:
+      key: "/com/ubuntu/update-manager/check-new-release-ignore"
+      value: "'jammy'"
+      state: present
+
+# Conky
+- name: Install conky for RHEL
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  package:
+    name: 
+      - conky
+    state: latest
+- name: Install conky for Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  package:
+    name: 
+      - conky-all
+    state: latest
+- name: configure conky
+  become: yes
+  block:
+    - name: Create conky autostart directory
+      file:
+        path: /home/nos3/.config/autostart
+        state: directory
+    - name: Create conky config directory
+      file:
+        path: /home/nos3/.config/conky
+        state: directory
+    - name: Copy conky config
+      copy:
+        src: files/conky.conf
+        dest: /home/nos3/.config/conky
+    - name: Configure conky autostart
+      copy:
+        src: files/conky.desktop
+        dest: /home/nos3/.config/autostart/

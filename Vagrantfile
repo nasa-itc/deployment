@@ -13,7 +13,6 @@ VAGRANTFILE_API_VERSION = "2"
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
 OS = cp.get_string_in_list("OS", ["ubuntu", "oracle", "rocky"], "ubuntu")
-GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COSMOS")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
@@ -70,7 +69,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                     filestore: "/tmp/filestore",
                     MACHINE: "#{machine}",
                     OS: "#{OS}",
-                    GROUND: "#{GROUND}",
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
                 #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag
@@ -79,4 +77,3 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
     end
 end
-
