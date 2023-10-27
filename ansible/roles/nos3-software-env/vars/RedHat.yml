@@ -2,63 +2,26 @@ packages_to_install:
   #
   # Necessities
   #
-  - autoconf
-  - automake
-  - cmake
-  - cmake-gui
   - gedit
   - git
-  - make
-  - patch
+  - gnome-terminal
   - python3-devel
   - python3-pip
-  - rpm-build
-  - yum-utils
-  #
-  # NOS3
-  #
-  - boost-devel.i686
-  - gcc-c++
-  - glibc-devel
-  - libffi-devel
-  - libgcc
-  - libglvnd-devel
-  - libstdc++-devel
-  - readline-devel.i686
+  - firefox
+
   #
   # Quality of Life
   #
   - bash-completion
-  - ccache
-  - ctags 
   - dos2unix
   - gitk
-  - gnome-terminal
   - gnome-tweaks
   - htop
-  - libtool
-  - libusb
-  - lrzsz # zmodem, xmodem, ymodem
-  - minicom
-  - tmux
-  - vim
-  - xclip
-  - zsh
-  #
-  # Buildroot
-  #
-  - bison
-  - dropbear
-  - perl-ExtUtils-MakeMaker
+
   #
   # Docker
   #
-  #- crun
-  - containerd.io
   - docker-ce
   - docker-ce-cli
   - docker-compose-plugin
-  #- podman-docker
-  #- podman-compose
-  #- podman-plugins
   - python3-docker

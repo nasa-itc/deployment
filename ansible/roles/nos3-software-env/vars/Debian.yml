@@ -2,15 +2,10 @@ packages_to_install:
   #
   # Necessities
   #
-  - cmake
-  - cmake-qt-gui
-  - g++-multilib
-  - gcc-multilib
+  - dmz-cursor-theme
   - gedit
   - git
   - gnome-terminal
-  - google-mock
-  - googletest
   - nautilus
   - python3-dev
   - python3-pip
@@ -21,9 +16,8 @@ packages_to_install:
   #
   - bash-completion
   - dos2unix
-  - gdb
   - gitk
-  #- gnome-shell-extension-desktop-icons
+  - gnome-shell-extension-desktop-icons-ng
   - gnome-shell-extensions
   - gnome-tweaks
   - htop

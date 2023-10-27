@@ -5,3 +5,4 @@
 .vscode
 *.box
 rvm1-ansible
+tmp
