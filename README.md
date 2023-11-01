@@ -7,7 +7,7 @@ Ansible scripts used to provision the NOS3 VM for development.
 Each of the applications listed below are required to continue:
 * [Git 2.36+](https://git-scm.com/)
 * [Vagrant 2.3.4+](https://www.vagrantup.com/)
-* [VirtualBox 7.0+](https://www.virtualbox.org/)
+* [VirtualBox 7.0.6+](https://www.virtualbox.org/)
 
 Older versions of the above software may still work, but were not used to verify the release.
 You will need to obtain administrator privileges on your machine in order to install these.
@@ -41,8 +41,13 @@ Here are the steps to get this done:
   - The VM will pop up and restart, don't interact with it until provisioning is done
   - Feel free to work on other things while this process is running
 * The play recap should be the last thing printed out, use this to verify everything went according to plan
-* Close the terminal or command prompt
-* Note that the virtual machine will re-size appropriately once you log in
+* Restart / reload the VM
+  - `vagrant reload`
+* In the Virutalbox window, select `Devices > Upgrade Guest Additions...`
+  - Wait for the pop-up to close showing completed
+* Restart / reload the VM
+  - `vagrant reload`
+* Login and get to work
 
 ## Provisioning to Local Environment
 
@@ -50,22 +55,22 @@ If you're deploying to an existing local environment, a simple script has been p
 This script will run ansible for you.
 The script can be edited manually to change settings as needed.
 Note that no new user will be created during this process as would typically be done when provisioning from scratch.
-Users are expected to be in the `domainusers` group to access shared source at `/opt/nos3`.
+Users are expected to be in the `domainusers` group to access shared source at `/opt/jstar`.
 
 ## Logging In
 
-The `nos3` user is the typical login you will want to use.
+The `jstar` user is the typical login you will want to use.
 The `vagrant` user was created automatically by the provisioning process and can be left alone.
 You'll want to be sure you know the following passwords:
 * Username - password
-* `nos3` - `nos3123!`
+* `jstar` - `jstar123!`
 * `vagrant` - `vagrant`
 
 ## Quality of Life Improvements
 
 It is recommended that you log-in and setup the virtual machine to your tastes.
-The first thing would be to install Virtual Box Guest Additions for your current version by using the `Devices->Insert Guest Additions...` option in the toolbar, auto-launching the CD, and following the instructions.
-Additionally, you will want to remove the current SSH keys at `/home/nos3/.ssh` and replace them with your personal ones so that you may commit to the git repositories. 
+The first thing would be to install Virtual Box Guest Additions for your current version by using the `Devices > Upgrade Guest Additions...` option in the toolbar, auto-launching the CD, and following the instructions.
+Additionally, you will want to remove the current SSH keys at `/home/jstar/.ssh` and replace them with your personal ones so that you may commit to the git repositories. 
 
 ## Re-Provisioning
 
@@ -102,10 +107,7 @@ Note that this process will not remove all the downloaded base boxes from your m
   - Follow the instructions provided
 * How can I mount a shared folder so that I edit on my host and compile / run in the VM?
   - In the VirtualBox menu select: Devices -> Shared Folders -> Shared Folders Settings...
-  - Select the folder with a plus to add your `mission` folder, select `Auto-mount`, `Make Permanent`, and `OK`
-  - In a terminal inside the VM `sudo mount -t vboxsf ~/mission ~/nos3 -o uid=1001,gid=1001`
-  * How can I run 42 without the GUI?
-  - Edit the `~/Desktop/nos3-42/NOS3-42InOut/Inp_Sim.txt` and set Graphics Front End to `FALSE` 
+  - Select the folder with a plus to add your `git` folder, select `Auto-mount`, `Make Permanent`, and `OK`
 * After running `vagrant destroy`, the following `vagrant up` command fails with an error stating that it could not rename the directory?
   - You will have to run `vagrant destroy` again then delete the specified directory and try again
 * An error appeared during `vagrant up` that stated VT-x was disabled?
@@ -153,7 +155,7 @@ Things that should be checked include:
 * `vagrant halt`
 * Remove all shared folders from box
 * Remove or rename any previously generated `package.box` files in local directory
-* `vagrant package --output nos3_dev_YYMMDD.box`
+* `vagrant package --output jstar_YYMMDD.box`
 
 ## Docker
 
