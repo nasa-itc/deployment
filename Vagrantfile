@@ -12,27 +12,21 @@ VAGRANTFILE_API_VERSION = "2"
 
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
-OS = cp.get_string_in_list("OS", ["ubuntu", "oracle", "rocky"], "ubuntu")
-GROUND = cp.get_string_in_list("GROUND", ["COSMOS", "AIT", "BOTH", "NONE"], "COSMOS")
+OS = cp.get_string_in_list("OS", ["ubuntu", "rocky"], "ubuntu")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
-    config.vm.box = "bento/ubuntu-20.04"
-    config.vm.box_version = "202303.13.0"
+    config.vm.box = "bento/ubuntu-22.04"
+    config.vm.box_version = "202309.08.0"
     
     # Was another OS was selected?
-    #if (OS == "oracle")
-    #    config.vm.box = "bento/oracle-8"
-    #    config.vm.box_version = "202305.24.0"
-    #end
-    
     if (OS == "rocky")
         config.vm.box = "bento/rockylinux-8"
-        config.vm.box_version = "202305.24.0"
+        config.vm.box_version = "202309.08.0"
     end
 
     # Configure machine
-    config.vm.hostname = "nos3"
+    config.vm.hostname = "itc"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
     
     # https://github.com/hashicorp/vagrant/issues/5186#issuecomment-312349002
@@ -41,16 +35,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provider "virtualbox" do |vbox|
         vbox.gui = true
         vbox.cpus = 4
-        vbox.memory = "4096"
+        vbox.memory = "8192"
+        vbox.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
         vbox.customize ["modifyvm", :id, "--vram", 128]
-        vbox.customize ["showvminfo", :id]
         vbox.customize ["storageattach", :id,  "--storagectl", "IDE Controller", "--port", 1, "--device", 0, "--type", "dvddrive", "--medium", "emptydrive"]
-        vbox.customize ["modifyvm", :id, "--hwvirtex", "on"]
-        vbox.customize ["modifyvm", :id, "--ioapic", "on"]
-        vbox.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
-        # Speed up ruby gem installs
-        vbox.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
-        vbox.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
         # Connect network
         vbox.customize ["modifyvm", :id, "--cableconnected1", "on"]
         # Bi-directional clipboard
@@ -62,18 +50,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # So you may need to vagrant up one or several of these to get all the machines you need for your environment
     machine_playbooks = {
         "base": "base.yml",
-        "dev": "dev.yml",
     }
 
     machine_playbooks.each do |machine, playbook|
-        is_primary = (machine.to_s == "dev")
+        is_primary = (machine.to_s == "base")
 
-        config.vm.define machine, primary: is_primary, autostart: is_primary do |nos3|
-            nos3.vm.provider "virtualbox" do |vbox|
-                vbox.name = "nos3_#{OS}_dev"
+        config.vm.define machine, primary: is_primary, autostart: is_primary do |jstar|
+            jstar.vm.provider "virtualbox" do |vbox|
+                vbox.name = "jstar_#{OS}"
             end
 
-            nos3.vm.provision "ansible_local" do |ansible|
+            jstar.vm.provision "ansible_local" do |ansible|
                 ansible.inventory_path = "ansible/hosts.txt" # needs re-thought out sometime in the future for moc, smoc, etc.
                 ansible.limit = "#{machine}"
                 ansible.playbook = "ansible/#{playbook}"
@@ -81,15 +68,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                     filestore: "/tmp/filestore",
                     MACHINE: "#{machine}",
                     OS: "#{OS}",
-                    GROUND: "#{GROUND}",
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
-                ansible.galaxy_role_file = "ansible/requirements.yml"
-                #ansible.tags="OpenC3"
                 #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag
                 #ansible.verbose = "vvv" # set to "true" or "vvv" or "vvvv" for debugging
             end
         end
     end
 end
-

@@ -2,60 +2,27 @@ packages_to_install:
   #
   # Necessities
   #
-  - cmake
-  - cmake-qt-gui
-  - g++-multilib
-  - gcc-multilib
+  - dmz-cursor-theme
   - gedit
   - git
   - gnome-terminal
-  - google-mock
-  - googletest
   - nautilus
-  - python-apt
   - python3-dev
   - python3-pip
-  #
-  # NOS3
-  #
-  - dwarves
-  - freeglut3-dev:i386
-  - lib32z1
-  - libboost-dev:i386
-  - libboost-system-dev:i386
-  - libboost-program-options-dev:i386
-  - libboost-filesystem-dev:i386
-  - libboost-thread-dev:i386
-  - libboost-regex-dev:i386
-  - libgtest-dev
-  - libicu-dev:i386
-  - libncurses5-dev
-  - libreadline-dev:i386
-  - libsocketcan-dev
-  - libxerces-c-dev
-  - minicom
   - firefox
+  - xdg-utils
+  
   #
   # Quality of Life
   #
   - bash-completion
   - dos2unix
-  - gdb
   - gitk
-  - gnome-shell-extension-desktop-icons
+  - gnome-shell-extension-desktop-icons-ng
   - gnome-shell-extensions
   - gnome-tweaks
   - htop
-  - libncurses5 
-  - libncurses5-dev 
-  - libncursesw5-dev
-  - libtinfo5 
-  - lrzsz # zmodem, xmodem, ymodem
-  - vim
-  #
-  # Buildroot
-  #
-  - dropbear-bin
+  
   #
   # Docker
   #

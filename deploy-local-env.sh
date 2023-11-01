@@ -98,7 +98,7 @@ REQ_ANSIBLE_VER="2.9.13"
 ss_announce "Installing Dependencies"
 
 if [ -f "/etc/debian_version" ]; then
-    EXTRA_VARS="OS=ubuntu GROUND=NONE"
+    EXTRA_VARS="OS=ubuntu"
     which pip >/dev/null 2>&1
     PIP_INSTALLED=$?
 
@@ -110,7 +110,7 @@ if [ -f "/etc/debian_version" ]; then
     	sudo pip3 install markupsafe typing ansible==2.9.13
     fi
 else
-    EXTRA_VARS="OS=rocky GROUND=NONE"
+    EXTRA_VARS="OS=rocky"
     which pip >/dev/null 2>&1
     PIP_INSTALLED=$?
 
@@ -146,10 +146,10 @@ sudo ln -sfn $(pwd)/ /vagrant
 ####################
 
 ss_announce "Configuring environment"
-ss_status "Running ansible playbook: ansible/server.yml"
+ss_status "Running ansible playbook: ansible/base.yml"
 
 ANSIBLE_CALLBACK_WHITELIST=profile_tasks \
-ansible-playbook ansible/server.yml \
+ansible-playbook ansible/base.yml \
     --ask-become-pass \
     -i ansible/hosts.txt \
     --extra-vars "$EXTRA_VARS" \

@@ -1,8 +1,8 @@
 ---
-# nos3-user role
+# jstar-user role
 # user account, env vars, etc.
 
-# Create nos3 user and group
+# Create jstar user and group
 - name: Create domainusers group
   become: yes
   group:
@@ -15,68 +15,68 @@
     name: docker
   tags: base
 
-- name:  Create nos3 user and add nos3 groups
+- name:  Create jstar user and add jstar groups
   become: yes
   user:
-    name: nos3
-    password: $6$.mG1a/zL$f1LcckhnvYRUxQZrGeWVBh.nNAJu9qNIX9v1zvivsc67SjqGapbXNFS4e2/uInkqSas64WwmBRJ45uqSB.nSZ1
+    name: jstar
+    password: $6$V3Ndgk1Nrw2sV8K3$lWX.czWkF4t0VfDI9XqmPyTf9BfoijVs5j8ug.xjZ1IUBEfz/kQXtmNsiRCY8JIbiVlthUW5tJ.B6RQ5gpT2n0
     group: domainusers
     groups: domainusers, dialout, docker
     shell: /bin/bash
   tags: base
 
-# Change /opt/nos3 directory ownership
-- name: Change /opt/nos3 directory ownership
+# Change /opt/jstar directory ownership
+- name: Change /opt/jstar directory ownership
   become: yes
   file:
-    path: /opt/nos3
+    path: /opt/jstar
     state: directory
-    owner: nos3
+    owner: jstar
     group: domainusers
   tags: base
 
-# Edit permissions for /opt/nos3
-- name: Change /opt/nos3 directory permissions
+# Edit permissions for /opt/jstar
+- name: Change /opt/jstar directory permissions
   become: yes
   file:
-    path: /opt/nos3
+    path: /opt/jstar
     mode: '777'
   tags: base
 
-# Configure nos3 permissions, env, etc.
-- name: Set nos3 as owner of home directory
+# Configure jstar permissions, env, etc.
+- name: Set jstar as owner of home directory
   become: yes
   ansible.builtin.file:
-    path: /home/nos3
+    path: /home/jstar
     state: directory
     recurse: yes
-    owner: nos3
+    owner: jstar
     group: domainusers
   tags: base
-- name: Copy ssh keys to nos3
+- name: Copy ssh keys to jstar
   become: yes
   block:
   - name: Touch .ssh
     file:
-      path: /home/nos3/.ssh
+      path: /home/jstar/.ssh
       state: directory
       mode: '0700'
-      owner: nos3
+      owner: jstar
       group: domainusers
   - name: Create .ssh agent env file if it does not exist
     copy:
       content: ''
-      dest: /home/nos3/.ssh/agent.env
+      dest: /home/jstar/.ssh/agent.env
       force: no
       mode: '0600'
-      owner: nos3
+      owner: jstar
       group: domainusers
 - name:  Auto load ssh key
   become: yes
   blockinfile:
-    path: /home/nos3/.bashrc
+    path: /home/jstar/.bashrc
     create: yes
-    owner: nos3
+    owner: jstar
     group: domainusers
     marker: "# {mark} Ansible managed auto load ssh key block"
     block: |
@@ -100,14 +100,10 @@
 - name: Configure gdb
   become: yes
   lineinfile:
-    path: /home/nos3/.gdbinit
+    path: /home/jstar/.gdbinit
     create: yes
     mode: '0666'
-    owner: nos3
+    owner: jstar
     group: domainusers
     line: 'handle all ignore nostop noprint'
-  tags: base
-- name:  Set up nos3 user environment # min:106, custom:25
-  debug:
-    msg: TODO - Set up nos3 user environment (Desktop, convenience scripts)
   tags: base

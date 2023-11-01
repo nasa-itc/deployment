@@ -3,3 +3,4 @@
   roles:
     - role: nos3-software-env
     - role: nos3-user
+    - role: nos3-user-vm
