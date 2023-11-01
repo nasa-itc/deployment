@@ -105,10 +105,12 @@
     create: yes
     marker: "# {mark} Ansible managed jstar backgrounds block"
     block: |
-      # dconf path
       [org/gnome/desktop/background]
-      # dconf key names / values
       picture-uri='file:///usr/share/backgrounds/JSTAR_Background.png'
+      [org/gnome/desktop/background]
+      picture-options='centered'
+      [org/gnome/desktop/background]
+      primary-color='#000000'
   tags: base
 - name: Use jstar background on RHEL
   become: yes
@@ -166,10 +168,16 @@
       community.general.dconf:
         key: "/org/gnome/desktop/screensaver/lock-enabled"
         value: "'false'"
-    - name: Favorites
+    - name: Favorites, Debian
+      when: ansible_facts['os_family'] == "Debian"
       community.general.dconf:
         key: "/org/gnome/shell/favorite-apps"
         value: "['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'firefox_firefox.desktop']"
+    - name: Favorites, RedHat
+      when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+      community.general.dconf:
+        key: "/org/gnome/shell/favorite-apps"
+        value: "['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'firefox.desktop']"
     - name: Ignore new release
       dconf:
         key: "/com/ubuntu/update-manager/check-new-release-ignore"
