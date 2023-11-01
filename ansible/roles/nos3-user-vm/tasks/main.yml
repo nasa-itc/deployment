@@ -8,7 +8,7 @@
   become: yes
   user:
     name: jstar
-    groups: domainusers, dialout, vagrant, vboxsf, root, docker
+    groups: domainusers, dialout, vagrant, vboxsf, docker
   tags: base
   # Note: group root needed to find necessary library files to build
 
@@ -40,7 +40,6 @@
   shell:
     cmd: usermod -p vagrant vagrant
 
-# NOTE:  Not sure this is the best way to do this... there are some hardwired things based on experiences with Oracle Linux 8.5 and Install Desktop Environment
 # Virtual Box
 - name: Guest additions
   tags: guest-additions
@@ -77,6 +76,46 @@
     package:
       name: "linux-headers-{{ ansible_kernel }}"
 
+##### Perform JSTAR branding #####
+- name: Install/use jstar background on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  blockinfile:
+    path: /etc/profile.d/all_users.sh
+    create: yes
+    mode: '0666'
+    marker: "# {mark} Ansible managed jstar background block"
+    block: |
+      gsettings set org.gnome.desktop.background picture-uri "/usr/share/backgrounds/JSTAR_Background.png"
+      gsettings set org.gnome.desktop.background picture-options 'centered'
+  tags: base
+- name: Copy jstar background
+  become: yes
+  copy:
+    src: /vagrant/nos3_filestore/backgrounds/JSTAR_Background.png
+    dest: /usr/share/backgrounds/
+    mode: '0666'
+  tags: base
+
+- name: Install jstar background on RHEL
+  become: yes
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  blockinfile:
+    path: /etc/dconf/db/local.d/02-gnome-desktop-background
+    create: yes
+    marker: "# {mark} Ansible managed jstar backgrounds block"
+    block: |
+      # dconf path
+      [org/gnome/desktop/background]
+      # dconf key names / values
+      picture-uri='file:///usr/share/backgrounds/JSTAR_Background.png'
+  tags: base
+- name: Use jstar background on RHEL
+  become: yes
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  command:  dconf update
+  tags: base
+
 # Bring back nice to haves in Gnome
 - name: GNOME Nice to haves
   tags: gnome-nice-to-haves
@@ -101,45 +140,40 @@
   - name: PIP install psutil
     become: true
     command: "{{ ansible_python.executable }} -m pip install psutil"
-  - name: GNOME Preferences (Minimize, maximize, close buttons)
-    become: true
-    become_user: jstar
-    community.general.dconf:
-      key: "/org/gnome/desktop/wm/preferences/button-layout"
-      value: "':minimize,maximize,close'"
-      state: present    
-  - name: GNOME Preferences (Window list)
-    become: true
-    become_user: jstar
-    dconf:
-      key: "/org/gnome/shell/enabled-extensions"
-      value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
-      state: present
-  - name: Disable idle delay
-    dconf:
-      key: "/org/gnome/desktop/session/idle-delay"
-      value: 'uint32 0'
-      state: present
-  - name: Disable idle activation
-    dconf:
-      key: "/org/gnome/desktop/screensaver/idle-activation-enabled"
-      value: "'false'"
-      state: present
-  - name: Disable lock
-    dconf:
-      key: "/org/gnome/desktop/screensaver/lock-enabled"
-      value: "'false'"
-      state: present
-  - name: Favorites
-    dconf:
-      key: "/org/gnome/shell/favorite-apps"
-      value: "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']"
-      state: present
-  - name: Ignore new release
-    dconf:
-      key: "/com/ubuntu/update-manager/check-new-release-ignore"
-      value: "'jammy'"
-      state: present
+  
+# Gnome Preferences
+- name: GNOME Preferences
+  become: true
+  become_user: jstar
+  block:
+    - name: Minimize, maximize, close buttons
+      community.general.dconf:
+        key: "/org/gnome/desktop/wm/preferences/button-layout"
+        value: "':minimize,maximize,close'"
+    - name: Window list
+      community.general.dconf:
+        key: "/org/gnome/shell/enabled-extensions"
+        value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
+    - name: Disable idle delay
+      community.general.dconf:
+        key: "/org/gnome/desktop/session/idle-delay"
+        value: "'uint32 0'"
+    - name: Disable idle activation
+      community.general.dconf:
+        key: "/org/gnome/desktop/screensaver/idle-activation-enabled"
+        value: "'false'"
+    - name: Disable lock
+      community.general.dconf:
+        key: "/org/gnome/desktop/screensaver/lock-enabled"
+        value: "'false'"
+    - name: Favorites
+      community.general.dconf:
+        key: "/org/gnome/shell/favorite-apps"
+        value: "['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'firefox_firefox.desktop']"
+    - name: Ignore new release
+      dconf:
+        key: "/com/ubuntu/update-manager/check-new-release-ignore"
+        value: "'jammy'"
 
 # Conky
 - name: Install conky for RHEL

@@ -110,46 +110,7 @@
     - name: RHEL enable docker start across reboots
       command: systemctl enable docker
 
-##### Perform jstar branding #####
-- name: Install/use jstar background on Ubuntu
-  become: yes
-  when: ansible_facts['os_family'] == "Debian"
-  blockinfile:
-    path: /etc/profile.d/all_users.sh
-    create: yes
-    mode: '0666'
-    marker: "# {mark} Ansible managed jstar background block"
-    block: |
-      gsettings set org.gnome.desktop.background picture-uri "/usr/share/backgrounds/JSTAR_Background.png"
-      gsettings set org.gnome.desktop.background picture-options 'centered'
-  tags: base
-- name: Copy jstar background
-  become: yes
-  copy:
-    src: /vagrant/nos3_filestore/backgrounds/JSTAR_Background.png
-    dest: /usr/share/backgrounds/
-    mode: '0666'
-  tags: base
-
-- name: Install jstar background on RHEL
-  become: yes
-  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  blockinfile:
-    path: /etc/dconf/db/local.d/02-gnome-desktop-background
-    create: yes
-    marker: "# {mark} Ansible managed jstar backgrounds block"
-    block: |
-      # dconf path
-      [org/gnome/desktop/background]
-      # dconf key names / values
-      picture-uri='file:///usr/share/backgrounds/JSTAR_Background.png'
-  tags: base
-- name: Use jstar background on RHEL
-  become: yes
-  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  command:  dconf update
-  tags: base
-
+# Versioning
 - name: Versioning
   tags:
     - base
