@@ -12,7 +12,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
-OS = cp.get_string_in_list("OS", ["ubuntu", "oracle", "rocky"], "ubuntu")
+OS = cp.get_string_in_list("OS", ["ubuntu", "rocky"], "ubuntu")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     # Configure machine
-    config.vm.hostname = "nos3"
+    config.vm.hostname = "itc"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
     
     # https://github.com/hashicorp/vagrant/issues/5186#issuecomment-312349002
@@ -36,7 +36,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vbox.gui = true
         vbox.cpus = 4
         vbox.memory = "8192"
-        vbox.customize ["modifyvm", :id, "--paravirtprovider", "minimal"]
         vbox.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
         vbox.customize ["modifyvm", :id, "--vram", 128]
         vbox.customize ["storageattach", :id,  "--storagectl", "IDE Controller", "--port", 1, "--device", 0, "--type", "dvddrive", "--medium", "emptydrive"]
@@ -56,12 +55,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     machine_playbooks.each do |machine, playbook|
         is_primary = (machine.to_s == "base")
 
-        config.vm.define machine, primary: is_primary, autostart: is_primary do |nos3|
-            nos3.vm.provider "virtualbox" do |vbox|
-                vbox.name = "nos3_#{OS}"
+        config.vm.define machine, primary: is_primary, autostart: is_primary do |jstar|
+            jstar.vm.provider "virtualbox" do |vbox|
+                vbox.name = "jstar_#{OS}"
             end
 
-            nos3.vm.provision "ansible_local" do |ansible|
+            jstar.vm.provision "ansible_local" do |ansible|
                 ansible.inventory_path = "ansible/hosts.txt" # needs re-thought out sometime in the future for moc, smoc, etc.
                 ansible.limit = "#{machine}"
                 ansible.playbook = "ansible/#{playbook}"

@@ -3,21 +3,21 @@
   debug:
     var: OS
 
-# Configure nos3 permissions, env, etc.
-- name:  Add nos3 user to various groups
+# Configure jstar permissions, env, etc.
+- name:  Add jstar user to various groups
   become: yes
   user:
-    name: nos3
+    name: jstar
     groups: domainusers, dialout, vagrant, vboxsf, root, docker
   tags: base
   # Note: group root needed to find necessary library files to build
 
-- name: Add nos3 user as a sudoer
+- name: Add jstar user as a sudoer
   become: yes
   lineinfile:
-    path: /etc/sudoers.d/nos3
+    path: /etc/sudoers.d/jstar
     create: yes
-    line: 'nos3 ALL=(ALL) NOPASSWD:ALL'
+    line: 'jstar ALL=(ALL) NOPASSWD:ALL'
   tags: base
 
 # Hide the vagrant user
@@ -103,14 +103,14 @@
     command: "{{ ansible_python.executable }} -m pip install psutil"
   - name: GNOME Preferences (Minimize, maximize, close buttons)
     become: true
-    become_user: nos3
+    become_user: jstar
     community.general.dconf:
       key: "/org/gnome/desktop/wm/preferences/button-layout"
       value: "':minimize,maximize,close'"
       state: present    
   - name: GNOME Preferences (Window list)
     become: true
-    become_user: nos3
+    become_user: jstar
     dconf:
       key: "/org/gnome/shell/enabled-extensions"
       value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
@@ -161,17 +161,17 @@
   block:
     - name: Create conky autostart directory
       file:
-        path: /home/nos3/.config/autostart
+        path: /home/jstar/.config/autostart
         state: directory
     - name: Create conky config directory
       file:
-        path: /home/nos3/.config/conky
+        path: /home/jstar/.config/conky
         state: directory
     - name: Copy conky config
       copy:
         src: files/conky.conf
-        dest: /home/nos3/.config/conky
+        dest: /home/jstar/.config/conky
     - name: Configure conky autostart
       copy:
         src: files/conky.desktop
-        dest: /home/nos3/.config/autostart/
+        dest: /home/jstar/.config/autostart/

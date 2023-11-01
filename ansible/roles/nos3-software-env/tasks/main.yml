@@ -17,7 +17,7 @@
       when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
       command: systemctl set-default graphical
 
-##### O/S packages, environment, NOS3 branding, etc. #####
+##### O/S packages, environment, jstar branding, etc. #####
 - name: Include OS specific variables
   when: ansible_facts['os_family'] == "Debian"
   include_vars:
@@ -32,10 +32,6 @@
   tags: base
 
 ##### O/S packages #####
-- name: Enable i386 architecture
-  become: yes
-  when: ansible_facts['os_family'] == "Debian"
-  command: dpkg --add-architecture i386
 - name: Update apt package cache
   become: yes
   when: ansible_facts['os_family'] == "Debian"
@@ -48,13 +44,6 @@
     name: "epel-release"
     state: present
   tags: base
-- name: Add powertools repository for yum
-  become: yes
-  ignore_errors: yes
-  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  command: yum config-manager --set-enabled powertools  
-  args:
-    warn: false
 - name: Add powertools repository for yum
   become: yes
   when: (OS == "rocky")
@@ -78,7 +67,7 @@
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   yum: update_cache=yes
   tags: base
-- name: Install NOS3 required packages
+- name: Install jstar required packages
   become: yes
   package:
     state: latest
@@ -121,67 +110,41 @@
     - name: RHEL enable docker start across reboots
       command: systemctl enable docker
 
-##### Install ITC common and NOS engine #####
-- name: Install ITC common on Ubuntu
-  become: yes
-  when: ansible_facts['os_family'] == "Debian"
-  apt:
-    deb="/vagrant/nos3_filestore/packages/ubuntu/itc-common-Release_1.10.1_i386.deb"
-  tags: base
-- name: Install NOS engine on Ubuntu
-  become: yes
-  when: ansible_facts['os_family'] == "Debian"
-  apt:
-    deb="/vagrant/nos3_filestore/packages/ubuntu/nos-engine-Release_1.6.1_i386.deb"
-  tags: base
-  
-- name: Install ITC common and NOS engine on RHEL
-  become: yes
-  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  yum:
-    name:
-      - "/vagrant/nos3_filestore/packages/rhel/xerces-c-3.1.1-10.el7_7.i686.rpm"
-      - "/vagrant/nos3_filestore/packages/rhel/xerces-c-devel-3.1.1-10.el7_7.i686.rpm"
-      - "/vagrant/nos3_filestore/packages/rhel/itc-common-Release_1.10.1_i386.rpm"
-      - "/vagrant/nos3_filestore/packages/rhel/nos-engine-Release_1.6.1_i386.rpm"
-    disable_gpg_check: true
-    state: present
-  tags: base
-
-##### Perform NOS3 branding #####
-- name: Install/use NOS3 background on Ubuntu
+##### Perform jstar branding #####
+- name: Install/use jstar background on Ubuntu
   become: yes
   when: ansible_facts['os_family'] == "Debian"
   blockinfile:
     path: /etc/profile.d/all_users.sh
     create: yes
     mode: '0666'
-    marker: "# {mark} Ansible managed NOS3 background block"
+    marker: "# {mark} Ansible managed jstar background block"
     block: |
-      gsettings set org.gnome.desktop.background picture-uri "/usr/share/backgrounds/nos3_background.png"
+      gsettings set org.gnome.desktop.background picture-uri "/usr/share/backgrounds/JSTAR_Background.png"
+      gsettings set org.gnome.desktop.background picture-options 'centered'
   tags: base
-- name: Copy NOS3 background
+- name: Copy jstar background
   become: yes
   copy:
-    src: /vagrant/nos3_filestore/backgrounds/nos3_background.png
+    src: /vagrant/nos3_filestore/backgrounds/JSTAR_Background.png
     dest: /usr/share/backgrounds/
     mode: '0666'
   tags: base
 
-- name: Install NOS3 background on RHEL
+- name: Install jstar background on RHEL
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   blockinfile:
     path: /etc/dconf/db/local.d/02-gnome-desktop-background
     create: yes
-    marker: "# {mark} Ansible managed NOS3 backgrounds block"
+    marker: "# {mark} Ansible managed jstar backgrounds block"
     block: |
       # dconf path
       [org/gnome/desktop/background]
       # dconf key names / values
-      picture-uri='file:///usr/share/backgrounds/nos3_background.png'
+      picture-uri='file:///usr/share/backgrounds/JSTAR_Background.png'
   tags: base
-- name: Use NOS3 background on RHEL
+- name: Use jstar background on RHEL
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
   command:  dconf update
@@ -197,7 +160,7 @@
   - name: Add version and timestamp info config file to record basebox versioning
     become: yes
     blockinfile:
-      path: /etc/nos3-deployment-release
+      path: /etc/jstar-deployment-release
       create: yes
       block: |
         vm_provisioning_date="{{ date }}"

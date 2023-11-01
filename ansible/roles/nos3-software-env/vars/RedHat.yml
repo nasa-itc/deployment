@@ -17,6 +17,7 @@ packages_to_install:
   - gitk
   - gnome-tweaks
   - htop
+  - libcanberra-gtk2
 
   #
   # Docker
