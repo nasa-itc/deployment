@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=conky
+Exec=conky --daemonize --pause=1
+StartupNotify=false
+Terminal=false
+Categories=System;Monitor;

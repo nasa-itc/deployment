@@ -3,21 +3,21 @@
   debug:
     var: OS
 
-# Configure nos3 permissions, env, etc.
-- name:  Add nos3 user to various groups
+# Configure jstar permissions, env, etc.
+- name:  Add jstar user to various groups
   become: yes
   user:
-    name: nos3
-    groups: domainusers, dialout, vagrant, vboxsf, root, docker
+    name: jstar
+    groups: domainusers, dialout, vagrant, vboxsf, docker
   tags: base
   # Note: group root needed to find necessary library files to build
 
-- name: Add nos3 user as a sudoer
+- name: Add jstar user as a sudoer
   become: yes
   lineinfile:
-    path: /etc/sudoers.d/nos3
+    path: /etc/sudoers.d/jstar
     create: yes
-    line: 'nos3 ALL=(ALL) NOPASSWD:ALL'
+    line: 'jstar ALL=(ALL) NOPASSWD:ALL'
   tags: base
 
 # Hide the vagrant user
@@ -40,7 +40,6 @@
   shell:
     cmd: usermod -p vagrant vagrant
 
-# NOTE:  Not sure this is the best way to do this... there are some hardwired things based on experiences with Oracle Linux 8.5 and Install Desktop Environment
 # Virtual Box
 - name: Guest additions
   tags: guest-additions
@@ -77,6 +76,48 @@
     package:
       name: "linux-headers-{{ ansible_kernel }}"
 
+##### Perform JSTAR branding #####
+- name: Install/use jstar background on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  blockinfile:
+    path: /etc/profile.d/all_users.sh
+    create: yes
+    mode: '0666'
+    marker: "# {mark} Ansible managed jstar background block"
+    block: |
+      gsettings set org.gnome.desktop.background picture-uri "/usr/share/backgrounds/JSTAR_Background.png"
+      gsettings set org.gnome.desktop.background picture-options 'centered'
+  tags: base
+- name: Copy jstar background
+  become: yes
+  copy:
+    src: /vagrant/nos3_filestore/backgrounds/JSTAR_Background.png
+    dest: /usr/share/backgrounds/
+    mode: '0666'
+  tags: base
+
+- name: Install jstar background on RHEL
+  become: yes
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  blockinfile:
+    path: /etc/dconf/db/local.d/02-gnome-desktop-background
+    create: yes
+    marker: "# {mark} Ansible managed jstar backgrounds block"
+    block: |
+      [org/gnome/desktop/background]
+      picture-uri='file:///usr/share/backgrounds/JSTAR_Background.png'
+      [org/gnome/desktop/background]
+      picture-options='centered'
+      [org/gnome/desktop/background]
+      primary-color='#000000'
+  tags: base
+- name: Use jstar background on RHEL
+  become: yes
+  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+  command:  dconf update
+  tags: base
+
 # Bring back nice to haves in Gnome
 - name: GNOME Nice to haves
   tags: gnome-nice-to-haves
@@ -101,17 +142,78 @@
   - name: PIP install psutil
     become: true
     command: "{{ ansible_python.executable }} -m pip install psutil"
-  - name: GNOME Preferences (Minimize, maximize, close buttons)
-    become: true
-    become_user: nos3
-    community.general.dconf:
-      key: "/org/gnome/desktop/wm/preferences/button-layout"
-      value: "':minimize,maximize,close'"
-      state: present    
-  - name: GNOME Preferences (Window list)
-    become: true
-    become_user: nos3
-    dconf:
-      key: "/org/gnome/shell/enabled-extensions"
-      value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
-      state: present
+  
+# Gnome Preferences
+- name: GNOME Preferences
+  become: true
+  become_user: jstar
+  block:
+    - name: Minimize, maximize, close buttons
+      community.general.dconf:
+        key: "/org/gnome/desktop/wm/preferences/button-layout"
+        value: "':minimize,maximize,close'"
+    - name: Window list
+      community.general.dconf:
+        key: "/org/gnome/shell/enabled-extensions"
+        value: "['window-list@gnome-shell-extensions.gcampax.github.com']"
+    - name: Disable idle delay
+      community.general.dconf:
+        key: "/org/gnome/desktop/session/idle-delay"
+        value: "'uint32 0'"
+    - name: Disable idle activation
+      community.general.dconf:
+        key: "/org/gnome/desktop/screensaver/idle-activation-enabled"
+        value: "'false'"
+    - name: Disable lock
+      community.general.dconf:
+        key: "/org/gnome/desktop/screensaver/lock-enabled"
+        value: "'false'"
+    - name: Favorites, Debian
+      when: ansible_facts['os_family'] == "Debian"
+      community.general.dconf:
+        key: "/org/gnome/shell/favorite-apps"
+        value: "['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'firefox_firefox.desktop']"
+    - name: Favorites, RedHat
+      when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+      community.general.dconf:
+        key: "/org/gnome/shell/favorite-apps"
+        value: "['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'firefox.desktop']"
+    - name: Ignore new release
+      dconf:
+        key: "/com/ubuntu/update-manager/check-new-release-ignore"
+        value: "'jammy'"
+
+# Conky
+- name: Install conky for RHEL
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+  package:
+    name: 
+      - conky
+    state: latest
+- name: Install conky for Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  package:
+    name: 
+      - conky-all
+    state: latest
+- name: configure conky
+  become: yes
+  block:
+    - name: Create conky autostart directory
+      file:
+        path: /home/jstar/.config/autostart
+        state: directory
+    - name: Create conky config directory
+      file:
+        path: /home/jstar/.config/conky
+        state: directory
+    - name: Copy conky config
+      copy:
+        src: files/conky.conf
+        dest: /home/jstar/.config/conky
+    - name: Configure conky autostart
+      copy:
+        src: files/conky.desktop
+        dest: /home/jstar/.config/autostart/
