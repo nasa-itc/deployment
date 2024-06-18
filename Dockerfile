@@ -3,19 +3,18 @@
 #
 # Install latest docker from PPA: https://docs.docker.com/engine/install/ubuntu/
 # 
-# Follow multi-arch instructions: https://www.docker.com/blog/multi-arch-images/
-#   docker buildx create --name nos3builder
-#   docker buildx use nos3builder
-#   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:dev .
-# 
 # Debugging
+#   docker build -t ivvitc/nos3-64:dev .
 #   docker run -it ivvitc/nos3-64:dev /bin/bash
 #
-# Pushing
+# Follow multi-arch instructions: https://www.docker.com/blog/multi-arch-images/
 #   docker login ivvitc
-#   docker push ivvitc/nos3-64:dev
+#   docker buildx create --name nos3builder
+#   docker buildx use nos3builder
+#   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:dev --push .
+# 
 
-FROM ubuntu:jammy-20240212 AS nos0
+FROM ubuntu:jammy-20240530 AS nos0
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
@@ -23,10 +22,11 @@ RUN apt-get update -y \
         cmake \
         curl \
         git \
-		gdb \
+        gdb \
         python3-dev \
         python3-pip \
         python-is-python3 \
+        python3.10-venv \
         dwarves \
         freeglut3-dev \
         libboost-dev \
@@ -45,10 +45,12 @@ RUN apt-get update -y \
         libreadline-dev \
         libsocketcan-dev \
         libxerces-c-dev \
-		netcat \
+        netcat \
         unzip \
         wget \
     && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install --upgrade pip \
+    && pip3 install pyside6 xmltodict fprime-bootstrap
 
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
