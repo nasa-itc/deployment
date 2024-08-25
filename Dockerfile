@@ -49,8 +49,8 @@ RUN apt-get update -y \
         unzip \
         wget \
     && rm -rf /var/lib/apt/lists/*
-RUN python3 -m pip install --upgrade pip \
-    && pip3 install pyside6 xmltodict fprime-bootstrap
+RUN python3 -m pip install --upgrade pip
+RUN pip3 install pyside6 xmltodict fprime-bootstrap setuptools wheel coverage numpy pytest pytest-mock pytest-randomly redis
 
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
