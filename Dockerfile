@@ -50,7 +50,7 @@ RUN apt-get update -y \
         wget \
     && rm -rf /var/lib/apt/lists/*
 RUN python3 -m pip install --upgrade pip \
-    && pip3 install pyside6 xmltodict fprime-bootstrap
+    && pip3 install pyside6==6.7.1 xmltodict==0.13.0 fprime-bootstrap==1.1.1 ait-core==2.5.2 rawsocket==0.2
 
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
