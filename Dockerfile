@@ -50,8 +50,10 @@ RUN apt-get update -y \
         wget \
     && rm -rf /var/lib/apt/lists/*
 RUN python3 -m pip install --upgrade pip \
-    && pip3 install pyside6 xmltodict fprime-bootstrap
-
+    && pip3 install pyside6 xmltodict fprime-bootstrap && \
+    wget https://raw.githubusercontent.com/nasa-itc/fprime/nos3%2384-fprime-checkout/requirements.txt && \
+    pip3 install -r requirements.txt
+    
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
 RUN sed 's/fs.mqueue.msg_max/fs.mqueue.msg_max=500/' /etc/sysctl.conf \
