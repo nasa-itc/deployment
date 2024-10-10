@@ -15,13 +15,10 @@
 # 
 
 FROM ubuntu:jammy-20240530 AS nos0
-
+ADD ./nos3_filestore /nos3_filestore/
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
     && apt-get install -y \
-        maven \
-        openjdk-17-jdk \
-        openjdk-17-jre \
         cmake \
         curl \
         git \
@@ -48,14 +45,16 @@ RUN apt-get update -y \
         libreadline-dev \
         libsocketcan-dev \
         libxerces-c-dev \
+        maven \
+        openjdk-17-jdk \
+        openjdk-17-jre \
         netcat \
         unzip \
         wget \
     && rm -rf /var/lib/apt/lists/*
 RUN python3 -m pip install --upgrade pip \
-    && pip3 install pyside6==6.7.1 xmltodict==0.13.0 fprime-bootstrap==1.1.1 ait-core==2.5.2 ait-gui==2.4.1 rawsocket==0.2 \
-    && wget https://raw.githubusercontent.com/nasa-itc/fprime/nos3%2384-fprime-checkout/requirements.txt \
-    && pip3 install -r requirements.txt
+    && pip3 install -r /nos3_filestore/requirements.txt \ 
+    && pip3 install ait-core==2.5.2 ait-gui==2.4.1 rawsocket==0.2
 
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
