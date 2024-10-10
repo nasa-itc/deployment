@@ -19,6 +19,9 @@ FROM ubuntu:jammy-20240530 AS nos0
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
     && apt-get install -y \
+        maven \
+        openjdk-17-jdk \
+        openjdk-17-jre \
         cmake \
         curl \
         git \
