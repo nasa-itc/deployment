@@ -21,8 +21,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     
     # Was another OS was selected?
     if (OS == "rocky")
-        config.vm.box = "bento/rockylinux-8"
-        config.vm.box_version = "202309.08.0"
+        config.vm.box = "bento/rockylinux-9"
+        config.vm.box_version = "202407.23.0"
     end
 
     # Configure machine

@@ -20,9 +20,7 @@ packages_to_install:
   - libcanberra-gtk2
 
   #
-  # Docker
+  # Containers
   #
-  - docker-ce
-  - docker-ce-cli
-  - docker-compose-plugin
-  - python3-docker
+  - podman
+  - podman-docker
