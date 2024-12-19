@@ -11,7 +11,7 @@
 #   docker login ivvitc
 #   docker buildx create --name nos3builder
 #   docker buildx use nos3builder
-#   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:dev --push .
+#   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:20241219 --push .
 # 
 
 FROM ubuntu:jammy-20240530 AS nos0
@@ -29,6 +29,7 @@ RUN apt-get update -y \
         python3.10-venv \
         dwarves \
         freeglut3-dev \
+        lcov \
         libboost-dev \
         libboost-system-dev \
         libboost-program-options-dev \
