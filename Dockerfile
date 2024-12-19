@@ -19,6 +19,7 @@ ADD ./nos3_filestore /nos3_filestore/
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
     && apt-get install -y \
+        bc \
         cmake \
         curl \
         git \
@@ -29,6 +30,7 @@ RUN apt-get update -y \
         python3.10-venv \
         dwarves \
         freeglut3-dev \
+        gcovr \
         lcov \
         libboost-dev \
         libboost-system-dev \
