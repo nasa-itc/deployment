@@ -22,15 +22,11 @@ RUN apt-get update -y \
         bc \
         cmake \
         curl \
-        git \
-        gdb \
-        python3-dev \
-        python3-pip \
-        python-is-python3 \
-        python3.10-venv \
         dwarves \
         freeglut3-dev \
         gcovr \
+        gdb \
+        git \
         lcov \
         libboost-dev \
         libboost-system-dev \
@@ -39,9 +35,6 @@ RUN apt-get update -y \
         libboost-thread-dev \
         libboost-regex-dev \
         libcurl4-openssl-dev \
-        libmariadb-dev \
-        libmariadb-dev-compat \
-        libgcrypt20-dev \
         libgtest-dev \
         libicu-dev \
         libncurses5-dev \
@@ -49,9 +42,16 @@ RUN apt-get update -y \
         libsocketcan-dev \
         libxerces-c-dev \
         maven \
+        netcat \
         openjdk-17-jdk \
         openjdk-17-jre \
-        netcat \
+        python3-dev \
+        python3-pip \
+        python-is-python3 \
+        python3.10-venv \
+        python3-sphinx \
+        python3-sphinx-rtd-theme \
+        python3-myst-parser \
         unzip \
         wget \
     && rm -rf /var/lib/apt/lists/*
@@ -69,16 +69,22 @@ RUN sed 's/fs.mqueue.msg_max/fs.mqueue.msg_max=500/' /etc/sysctl.conf \
     && ln -s /usr/lib/libnos_engine_client.so /usr/lib/libnos_engine_client_cxx11.so
 
 FROM nos1 AS nos2
-ARG WOLFSSL_VERSION=5.6.0-stable
-RUN curl \
-        -LS https://github.com/wolfSSL/wolfssl/archive/v${WOLFSSL_VERSION}.zip \
-        -o v${WOLFSSL_VERSION}.zip \
-    && unzip v${WOLFSSL_VERSION}.zip \
-    && rm v${WOLFSSL_VERSION}.zip \
-    && cd wolfssl-${WOLFSSL_VERSION} \
-    && mkdir -p build \
-    && cd build \
-    && cmake -DWOLFSSL_AESCCM=yes -DWOLFSSL_AESSIV=yes -DWOLFSSL_CMAC=yes .. \
-    && cmake --build . \
+# For CryptoLib
+ARG GPG_ERROR_VERSION=1.50
+ARG GCRYPT_VERSION=1.11.0
+RUN curl \ 
+    -LS https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${GPG_ERROR_VERSION}.tar.bz2 \
+    -o /tmp/libgpg-error-${GPG_ERROR_VERSION}.tar.bz2 \
+    && tar -xjf /tmp/libgpg-error-${GPG_ERROR_VERSION}.tar.bz2 -C /tmp/ \
+    && cd /tmp/libgpg-error-${GPG_ERROR_VERSION} \
+    && ./configure \
     && make install \
-    && ldconfig 
+    && curl \ 
+        -LS https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${GCRYPT_VERSION}.tar.bz2 \
+        -o /tmp/libgcrypt-${GCRYPT_VERSION}.tar.bz2 \
+    && tar -xjf /tmp/libgcrypt-${GCRYPT_VERSION}.tar.bz2 -C /tmp/ \
+    && cd /tmp/libgcrypt-${GCRYPT_VERSION} \
+    && ./configure \
+    && make install \
+    && ldconfig \
+    && rm -rf /tmp/*
