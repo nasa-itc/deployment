@@ -8,13 +8,13 @@
 #   docker run -it ivvitc/nos3-64:dev /bin/bash
 #
 # Follow multi-arch instructions: https://www.docker.com/blog/multi-arch-images/
-#   docker login ivvitc
+#   docker login --username ivvitc
 #   docker buildx create --name nos3builder
 #   docker buildx use nos3builder
-#   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:20241219 --push .
+#   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:20250217 --push .
 # 
 
-FROM ubuntu:jammy-20240530 AS nos0
+FROM ubuntu:jammy-20250126 AS nos0
 ADD ./nos3_filestore /nos3_filestore/
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
