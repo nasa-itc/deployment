@@ -148,6 +148,8 @@ Things that should be checked include:
 
 ## Creating a base box
 
+### Windows
+
 * Change your configuration as necessary
 * `vagrant up`
 * Wait until complete
@@ -156,6 +158,25 @@ Things that should be checked include:
 * Remove all shared folders from box
 * Remove or rename any previously generated `package.box` files in local directory
 * `vagrant package --output jstar_YYMMDD.box`
+
+### Mac (ARM M1/M2)
+
+* Download Ubuntu ISO manually
+  * https://ubuntu.com/download/server/arm
+* Setup VM
+  * Create new VM manually in VirtualBox
+    * sudo su
+    * apt install ubuntu-desktop-minimal linux-headers-$(uname -r) build-essential dkms python3-dev gnome-tweaks bzip2 gcc make perl
+    * reboot now
+  * Insert guest additions ISO and install
+  * In a terminal:
+    * Follow docker engine install instructions - https://docs.docker.com/engine/install/ubuntu/
+    * sudo systemctl disable systemd-networkd
+    * sudo usermod -a -G dialout,docker,vboxsf jstar
+    * sudo shutdown -h now
+* Remove all shared folders from box
+* Remove or rename any previously generated `package.box` files in local directory
+* vagrant package --base jstar_ubuntu --output jstar_YYMMDD.box
 
 ## Docker
 
