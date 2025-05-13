@@ -1,66 +1,91 @@
 # NOS3 Ubuntu Dockerfile
-#
 # https://github.com/nasa-itc/deployment
 #
-# docker build -t ivvitc/nos3:latest .
-# docker run -it ivvitc/nos3 /bin/bash
-# docker push ivvitc/nos3:latest
+# Install latest docker from PPA: https://docs.docker.com/engine/install/ubuntu/
+# 
+# Debugging
+#   docker build -t ivvitc/nos3-64:dev .
+#   docker run -it ivvitc/nos3-64:dev /bin/bash
+#
+# Follow multi-arch instructions: https://www.docker.com/blog/multi-arch-images/
+#   docker login --username ivvitc
+#   docker buildx create --name nos3builder
+#   docker buildx use nos3builder
+#   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:20250217 --push .
+# 
 
-FROM ubuntu:focal-20230801 AS nos0
-
+FROM ubuntu:jammy-20250126 AS nos0
+ADD ./nos3_filestore /nos3_filestore/
 ARG DEBIAN_FRONTEND=noninteractive
-RUN dpkg --add-architecture i386 \
-    && apt-get update -y \
+RUN apt-get update -y \
     && apt-get install -y \
+        bc \
         cmake \
-        g++-multilib \
-        gcc-multilib \
-        git \
-		gdb \
-        python-apt \
-        python3-dev \
-        python3-pip \
+        curl \
         dwarves \
-        freeglut3-dev:i386 \
-        lib32z1 \
-        libboost-dev:i386 \
-        libboost-system-dev:i386 \
-        libboost-program-options-dev:i386 \
-        libboost-filesystem-dev:i386 \
-        libboost-thread-dev:i386 \
-        libboost-regex-dev:i386 \
+        freeglut3-dev \
+        gcovr \
+        gdb \
+        git \
+        lcov \
+        libboost-dev \
+        libboost-system-dev \
+        libboost-program-options-dev \
+        libboost-filesystem-dev \
+        libboost-thread-dev \
+        libboost-regex-dev \
+        libcurl4-openssl-dev \
         libgtest-dev \
-        libicu-dev:i386 \
+        libicu-dev \
         libncurses5-dev \
-        libreadline-dev:i386 \
+        libreadline-dev \
         libsocketcan-dev \
         libxerces-c-dev \
+        maven \
+        netcat \
+        openjdk-17-jdk \
+        openjdk-17-jre \
+        python3-dev \
+        python3-pip \
+        python-is-python3 \
+        python3.10-venv \
+        python3-sphinx \
+        python3-sphinx-rtd-theme \
+        python3-myst-parser \
+        unzip \
         wget \
-		netcat \
     && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install --upgrade pip \
+    && pip3 install -r /nos3_filestore/requirements.txt \ 
+    && pip3 install ait-core==2.5.2 ait-gui==2.4.1 rawsocket==0.2
 
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
-RUN cd /tmp \
-    && wget https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/xerces-c/3.2.0+debian-2/xerces-c_3.2.0+debian.orig.tar.gz \
-    && tar -xf /tmp/xerces-c_3.2.0+debian.orig.tar.gz \
-    && cd /tmp/xerces-c-3.2.0 \
-    && /tmp/xerces-c-3.2.0/configure --prefix=/usr CFLAGS=-m32 CXXFLAGS=-m32 \
-    && cd /tmp/xerces-c-3.2.0 \
-    && make install \
-    && rm -r /tmp/* \
-    && sed 's/fs.mqueue.msg_max/fs.mqueue.msg_max=500/' /etc/sysctl.conf \
+RUN sed 's/fs.mqueue.msg_max/fs.mqueue.msg_max=500/' /etc/sysctl.conf \
+    && arch=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/) \
     && apt-get install -y \
-        /nos3_filestore/packages/ubuntu/itc-common-Release_1.10.1_i386.deb \
-        /nos3_filestore/packages/ubuntu/nos-engine-Release_1.6.1_i386.deb \
+        /nos3_filestore/packages/ubuntu/*_${arch}.deb \
     && chmod -R 777 /usr \
-    && mkdir -p /opt/nos3 \
-    && cd /opt/nos3 \
-    && git clone https://github.com/ericstoneking/42.git --depth=1 \
-    && cd /opt/nos3/42 \
-    && git reset --hard d4547dae44270876657aec009fe59980082ed999 \
-    && cd /opt/nos3/42 \
-    && sed 's/ARCHFLAG =/ARCHFLAG=-m32 /; s/LFLAGS = -L/LFLAGS = -m32 -L/; s/#GLUT_OR_GLFW = _USE_GLUT_/GLUT_OR_GLFW = _USE_GLUT_/' -i /opt/nos3/42/Makefile \
-    && make \
-    && ln -s /usr/lib/libnos_engine_client.so /usr/lib/libnos_engine_client_cxx11.so \
-    && chmod -R 777 /opt
+    && ln -s /usr/lib/libnos_engine_client.so /usr/lib/libnos_engine_client_cxx11.so
+
+FROM nos1 AS nos2
+# For CryptoLib
+ARG GPG_ERROR_VERSION=1.50
+ARG GCRYPT_VERSION=1.11.0
+RUN curl \ 
+    -LS https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${GPG_ERROR_VERSION}.tar.bz2 \
+    -o /tmp/libgpg-error-${GPG_ERROR_VERSION}.tar.bz2 \
+    && tar -xjf /tmp/libgpg-error-${GPG_ERROR_VERSION}.tar.bz2 -C /tmp/ \
+    && cd /tmp/libgpg-error-${GPG_ERROR_VERSION} \
+    && ./configure \
+    && make install \
+    && export LD_LIBRARY_PATH="$LD_LIBRARYPATH:/usr/local/lib" \
+    && curl \ 
+        -LS https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${GCRYPT_VERSION}.tar.bz2 \
+        -o /tmp/libgcrypt-${GCRYPT_VERSION}.tar.bz2 \
+    && tar -xjf /tmp/libgcrypt-${GCRYPT_VERSION}.tar.bz2 -C /tmp/ \
+    && cd /tmp/libgcrypt-${GCRYPT_VERSION} \
+    && ./configure \
+    && make install \
+    && ldconfig \
+    && rm -rf /tmp/*

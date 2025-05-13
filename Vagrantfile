@@ -17,12 +17,12 @@ OS = cp.get_string_in_list("OS", ["ubuntu", "rocky"], "ubuntu")
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
     config.vm.box = "bento/ubuntu-22.04"
-    config.vm.box_version = "202309.08.0"
+    config.vm.box_version = "202407.23.0"
     
     # Was another OS was selected?
     if (OS == "rocky")
-        config.vm.box = "bento/rockylinux-8"
-        config.vm.box_version = "202309.08.0"
+        config.vm.box = "bento/rockylinux-9"
+        config.vm.box_version = "202407.23.0"
     end
 
     # Configure machine

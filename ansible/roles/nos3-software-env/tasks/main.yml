@@ -44,10 +44,10 @@
     name: "epel-release"
     state: present
   tags: base
-- name: Add powertools repository for yum
-  become: yes
-  when: (OS == "rocky")
-  command: dnf config-manager --set-enabled powertools
+#- name: Add powertools repository for yum
+#  become: yes
+#  when: (OS == "rocky")
+#  command: dnf config-manager --set-enabled powertools
 - name: Add docker repository for yum
   become: yes
   when: (OS == "rocky")
@@ -58,10 +58,10 @@
   ansible.builtin.yum:
     name: runc
     state: absent
-- name: Add ol8_codeready_builder repository for yum
-  become: yes
-  when: (OS == "oracle")  
-  command: dnf config-manager --set-enabled ol8_codeready_builder
+#- name: Add ol8_codeready_builder repository for yum
+#  become: yes
+#  when: (OS == "oracle")  
+#  command: dnf config-manager --set-enabled ol8_codeready_builder
 - name: Update yum package cache
   become: yes
   when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
@@ -101,14 +101,14 @@
       name: code
 
 # RHEL Docker Setup
-- name: RHEL docker start and enable
-  become: yes
-  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
-  block:
-    - name: RHEL Start docker
-      command: systemctl start docker
-    - name: RHEL enable docker start across reboots
-      command: systemctl enable docker
+#- name: RHEL docker start and enable
+#  become: yes
+#  when: (ansible_facts['os_family'] == "RedHat") or (ansible_facts['os_family'] == "Rocky")
+#  block:
+#    - name: RHEL Start docker
+#      command: systemctl start docker
+#    - name: RHEL enable docker start across reboots
+#      command: systemctl enable docker
 
 # Versioning
 - name: Versioning
