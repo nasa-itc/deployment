@@ -14,10 +14,10 @@
 #   docker buildx build --platform linux/amd64,linux/arm64 -t ivvitc/nos3-64:20250217 --push .
 # 
 
-FROM ubuntu:jammy-20250126 AS nos0
+FROM ubuntu:jammy-20250415.1 AS nos0
 ADD ./nos3_filestore /nos3_filestore/
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -y \
+RUN apt-get update -y --fix-missing \
     && apt-get install -y \
         bc \
         cmake \
@@ -41,10 +41,12 @@ RUN apt-get update -y \
         libreadline-dev \
         libsocketcan-dev \
         libxerces-c-dev \
+        libzmq3-dev \
         maven \
         netcat \
         openjdk-17-jdk \
         openjdk-17-jre \
+        pkg-config \
         python3-dev \
         python3-pip \
         python-is-python3 \
