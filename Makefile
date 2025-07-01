@@ -6,11 +6,13 @@ SHELL := /bin/bash
 # Executable definitions docker|podman etc.
 CONTAINER_BIN =docker
 
+GIT_BRANCH=$(shell git branch --show-current)
+
 # Target tags for pushing to
 REGISTRY_HOST=ghcr.io
 IMAGE_USERNAME=haisamido
 IMAGE_NAME=nos3-64
-IMAGE_TAG=dev
+IMAGE_TAG=${GIT_BRANCH}
 
 IMAGE_URI=${REGISTRY_HOST}/${IMAGE_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
 
@@ -19,11 +21,14 @@ DOCKERFILE=Dockerfile
 
 GIT_TOKEN=${HOME}/.github.com/access_token
 
+nos3-64-pull-prebuilt: ## pull pre-built nos3-64 from remote
+	${CONTAINER_BIN} pull ${IMAGE_URI}
+
 nos3-64-build: ## build nos3-base from nos3-64 (Look at Dockerfile)
 	@$(call print_message,33,Building ${IMAGE_URI} ...)
 	${CONTAINER_BIN} build --file ${DOCKERFILE} -t ${IMAGE_URI} .
 
-nos3-64-push: | registry-login nos3-64-build ## push nos3-base (build runs first)
+nos3-64-push: | registry-login nos3-64-build ## push nos3-64 to remote (build runs first)
 	@$(call print_message,33,Pushing ${IMAGE_URI} ...)
 	${CONTAINER_BIN} push ${IMAGE_URI}
 
