@@ -25,3 +25,47 @@ This project is licensed under the NOSA 1.3 (NASA Open Source Agreement) License
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the tags on this repository.
+
+## Creating an OVA
+
+Some additional care must be taken when generating an OVA from this process.
+Things that should be checked include:
+* Remove personal SSH keys if they were added
+* Remove all shared folders
+* Ensure extended additions is not enabled / is not required
+
+## Creating a base box
+
+### Windows
+
+* Change your configuration as necessary
+* `vagrant up`
+* Wait until complete
+* Confirm no errors
+* `vagrant halt`
+* Remove all shared folders from box
+* Remove or rename any previously generated `package.box` files in local directory
+* `vagrant package --output jstar_YYMMDD.box`
+
+### Mac (ARM M1/M2)
+
+* Download Ubuntu ISO manually
+  * https://ubuntu.com/download/server/arm
+* Setup VM
+  * Create new VM manually in VirtualBox
+    * 4 CPUs, 8192MB RAM, 128MB graphics, 64GB VMDK HDD
+    * Skip unattended install
+  * Install ubuntu manually
+    * Name: jstar, Server name: itc
+    * Reboot once prompted, log in as new jstar user
+    * sudo apt install ubuntu-desktop-minimal linux-headers-$(uname -r) build-essential dkms python3-dev gnome-tweaks bzip2 gcc make perl
+    * reboot now
+  * Insert guest additions ISO and install
+  * In a terminal:
+    * Follow docker engine install instructions - https://docs.docker.com/engine/install/ubuntu/
+    * sudo systemctl disable systemd-networkd
+    * sudo usermod -a -G dialout,docker,vboxsf jstar
+    * sudo shutdown -h now
+* Remove all shared folders from box
+* Remove or rename any previously generated `package.box` files in local directory
+* vagrant package --base jstar_ubuntu --output jstar_YYMMDD.box
