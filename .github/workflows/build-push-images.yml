@@ -1,13 +1,15 @@
 name: Docker Image CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main", "dev", 'releases/**', 'issue_**' ]
   pull_request:
     branches: [ "main", "dev"  ]
-    
+
 env:
   REGISTRY: ghcr.io
+  
 jobs:
 
   build:
@@ -39,7 +41,6 @@ jobs:
         with:
           context: .
           push: true
-          # removing linux/arm64 due to https://github.com/haisamido/nos3-64/actions/runs/15981698304/job/45077321714#step:6:9123 TBD
           platforms: linux/amd64,linux/arm64
           tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
           labels: ${{ steps.meta.outputs.labels }}
