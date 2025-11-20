@@ -45,6 +45,9 @@ RUN apt-get update -y \
         netcat \
         openjdk-17-jdk \
         openjdk-17-jre \
+        unzip \
+        wget
+RUN apt-get install -y \
         python3-dev \
         python3-pip \
         python-is-python3 \
@@ -52,12 +55,13 @@ RUN apt-get update -y \
         python3-sphinx \
         python3-sphinx-rtd-theme \
         python3-myst-parser \
-        unzip \
-        wget \
-    && rm -rf /var/lib/apt/lists/*
+        python3-tk \
+        python3-pil.imagetk
+RUN rm -rf /var/lib/apt/lists/*
 RUN python3 -m pip install --upgrade pip \
     && pip3 install -r /nos3_filestore/requirements.txt \ 
-    && pip3 install ait-core==2.5.2 ait-gui==2.4.1 rawsocket==0.2
+    && pip3 install ait-core==2.5.2 ait-gui==2.4.1 rawsocket==0.2 \
+    && pip3 install Pillow customtkinter
 
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
