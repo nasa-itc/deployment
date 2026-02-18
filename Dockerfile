@@ -57,7 +57,8 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 RUN python3 -m pip install --upgrade pip \
     && pip3 install -r /nos3_filestore/requirements.txt \ 
-    && pip3 install ait-core==2.5.2 ait-gui==2.4.1 rawsocket==0.2
+    && pip3 install ait-core==2.5.2 ait-gui==2.4.1 rawsocket==0.2 \
+    && pip3 install pyside6 xmltodict wheel coverage numpy pytest-mock pytest-randomly redis
 
 FROM nos0 AS nos1
 ADD ./nos3_filestore /nos3_filestore/
