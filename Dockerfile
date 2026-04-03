@@ -27,6 +27,7 @@ RUN apt-get update -y \
         gcovr \
         gdb \
         git \
+        inetutils-ping \
         lcov \
         libboost-dev \
         libboost-system-dev \
