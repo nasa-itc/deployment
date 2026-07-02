@@ -13,12 +13,13 @@ VAGRANTFILE_API_VERSION = "2"
 require './vagrant-config.rb'
 cp = Configuration::Parser.new(IO.readlines("CONFIG"))
 OS = cp.get_string_in_list("OS", ["ubuntu", "rocky"], "ubuntu")
+PROVIDER = cp.get_string_in_list("PROVIDER", ["virtualbox", "vmware"], "virtualbox")
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Default to Ubuntu
     config.vm.box = "bento/ubuntu-22.04"
-    config.vm.box_version = "202407.23.0"
-    
+    config.vm.box_version = "202510.26.0"
+
     # Was another OS was selected?
     if (OS == "rocky")
         config.vm.box = "bento/rockylinux-9"
@@ -28,21 +29,34 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Configure machine
     config.vm.hostname = "itc"
     config.vm.synced_folder "./nos3_filestore", "/tmp/filestore"
-    
+
     # https://github.com/hashicorp/vagrant/issues/5186#issuecomment-312349002
     config.ssh.insert_key = false
 
-    config.vm.provider "virtualbox" do |vbox|
-        vbox.gui = true
-        vbox.cpus = 4
-        vbox.memory = "8192"
-        vbox.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
-        vbox.customize ["modifyvm", :id, "--vram", 128]
-        vbox.customize ["storageattach", :id,  "--storagectl", "IDE Controller", "--port", 1, "--device", 0, "--type", "dvddrive", "--medium", "emptydrive"]
-        # Connect network
-        vbox.customize ["modifyvm", :id, "--cableconnected1", "on"]
-        # Bi-directional clipboard
-        vbox.customize ['modifyvm', :id, '--clipboard-mode', 'bidirectional']
+    if (PROVIDER == "vmware")
+        config.vm.provider :vmware_desktop do |vmware|
+            vmware.gui = true
+            vmware.cpus = 4
+            vmware.memory = "8192"
+            vmware.linked_clone = false
+            vmware.force_vmware_license = "workstation"
+            vmware.vmx["isolation.tools.hgfs.disable"] = "FALSE" # shared folders always enabled
+        end
+    end
+
+    if (PROVIDER == "virtualbox")
+        config.vm.provider "virtualbox" do |vbox|
+            vbox.gui = true
+            vbox.cpus = 4
+            vbox.memory = "8192"
+            vbox.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
+            vbox.customize ["modifyvm", :id, "--vram", 128]
+            vbox.customize ["storageattach", :id,  "--storagectl", "IDE Controller", "--port", 1, "--device", 0, "--type", "dvddrive", "--medium", "emptydrive"]
+            # Connect network
+            vbox.customize ["modifyvm", :id, "--cableconnected1", "on"]
+            # Bi-directional clipboard
+            vbox.customize ['modifyvm', :id, '--clipboard-mode', 'bidirectional']
+        end
     end
 
     # One per machine... but multiple environments are/could be represented here 
@@ -68,6 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                     filestore: "/tmp/filestore",
                     MACHINE: "#{machine}",
                     OS: "#{OS}",
+                    vm_provider: PROVIDER
                 }
                 ansible.playbook_command = "ANSIBLE_FORCE_COLOR=true ANSIBLE_CALLBACK_WHITELIST=profile_tasks ansible-playbook" #  ANSIBLE_KEEP_REMOTE_FILES=1
                 #ansible.tags="gnome-nice-to-haves" # debugging example to just run tasks/roles with this tag

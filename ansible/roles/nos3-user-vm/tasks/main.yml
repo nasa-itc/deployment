@@ -8,9 +8,18 @@
   become: yes
   user:
     name: jstar
-    groups: domainusers, dialout, vagrant, vboxsf, docker
+    groups: domainusers, dialout, vagrant, docker
+    append: true
   tags: base
   # Note: group root needed to find necessary library files to build
+- name:  Add jstar user to vboxsf group
+  become: yes
+  user:
+    name: jstar
+    groups: vboxsf
+    append: true
+  when: vm_provider is defined and vm_provider == "virtualbox"
+  tags: base
 
 - name: Add jstar user as a sudoer
   become: yes
