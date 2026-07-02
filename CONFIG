@@ -1,1 +1,2 @@
 OS:  ubuntu  # "ubuntu" or "rocky"
+PROVIDER: virtualbox # "virtualbox" or "vmware"
