@@ -43,5 +43,5 @@ jobs:
           push: true
           # platforms: linux/amd64,linux/arm64
           platforms: linux/amd64
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:202606test
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/nos3-64:202606test2
           labels: ${{ steps.meta.outputs.labels }}
