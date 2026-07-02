@@ -3,9 +3,9 @@ name: Docker Image CI
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", "dev", 'releases/**', 'issue_**' ]
+    branches: [ "main", "dev", "github_Actions" ]
   pull_request:
-    branches: [ "main", "dev"  ]
+    branches: [ "main", "dev", "github_Actions" ]
 
 env:
   REGISTRY: ghcr.io
@@ -42,5 +42,5 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}:202606test
           labels: ${{ steps.meta.outputs.labels }}
