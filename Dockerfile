@@ -17,7 +17,9 @@
 FROM ubuntu:jammy-20250126 AS nos0
 ADD ./nos3_filestore /nos3_filestore/
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -y \
+# Suppress wireshark-common interactive prompt for tshark
+RUN echo "wireshark-common wireshark-common/install-setuid boolean false" | debconf-set-selections \
+    && apt-get update -y \
     && apt-get install -y \
         bc \
         cmake \
@@ -41,6 +43,7 @@ RUN apt-get update -y \
         libncurses5-dev \
         libreadline-dev \
         libsocketcan-dev \
+        libssl-dev \
         libxerces-c-dev \
         maven \
         netcat \
@@ -53,6 +56,7 @@ RUN apt-get update -y \
         python3-sphinx \
         python3-sphinx-rtd-theme \
         python3-myst-parser \
+        tshark \
         unzip \
         wget \
     && rm -rf /var/lib/apt/lists/*
